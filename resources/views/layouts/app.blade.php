@@ -18,3 +18,5 @@
 @section('js')
     <script> console.log("Hi, I'm using the Laravel-AdminLTE package!"); </script>
 @stop
+
+<span id="ticket-badge" class="badge badge-success">0</span>
