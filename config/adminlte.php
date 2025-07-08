@@ -336,6 +336,8 @@ return [
             'label_color' => 'success',
         ],
 
+
+
         ['header' => 'account_settings'],
         [
             'text' => 'profile',
@@ -358,8 +360,8 @@ return [
                     // This points to the reqOfficeController@index and views/reqOffice/index.blade.php
                 ],
                 [
-                    'text' => 'Manage Users',
-                    'url' => 'admin/users',
+                    'text' => 'Add Positions',
+                    'url' => 'position',
                     'icon' => 'fas fa-users-cog',
                 ],
                 [

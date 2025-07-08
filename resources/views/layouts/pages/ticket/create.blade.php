@@ -85,18 +85,19 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
                                         </div>
-                                        <select name="position" 
-                                                id="position" 
-                                                class="form-control select2 @error('position') is-invalid @enderror" 
-                                                required>
-                                            <option value="">Select or type position</option>
-                                            <option value="Manager" {{ old('position') == 'Manager' ? 'selected' : '' }}>Manager</option>
-                                            <option value="Supervisor" {{ old('position') == 'Supervisor' ? 'selected' : '' }}>Supervisor</option>
-                                            <option value="Staff" {{ old('position') == 'Staff' ? 'selected' : '' }}>Staff</option>
-                                            <option value="Officer" {{ old('position') == 'Officer' ? 'selected' : '' }}>Officer</option>
-                                            <option value="Clerk" {{ old('position') == 'Clerk' ? 'selected' : '' }}>Clerk</option>
-                                            <option value="Assistant" {{ old('position') == 'Assistant' ? 'selected' : '' }}>Assistant</option>
-                                        </select>
+                                            <select name="position" 
+                                                    id="position" 
+                                                    class="form-control select2 @error('position') is-invalid @enderror" 
+                                                    required>
+                                                <option value="">Select or type position</option>
+                                                @if(isset($positions) && count($positions))
+                                                    @foreach($positions as $position)
+                                                        <option value="{{ $position }}" {{ old('position') == $position ? 'selected' : '' }}>
+                                                            {{ $position }}
+                                                        </option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         @error('position')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror

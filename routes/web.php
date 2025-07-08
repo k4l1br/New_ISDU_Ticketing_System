@@ -32,4 +32,7 @@ Route::middleware(['auth'])->group(function () {
 
     // CRUD routes for Requesting Office (reqOffice)
     Route::resource('/reqOffice', reqOfficeController::class);
+
+    // CRUD routes for Position
+    Route::resource('/position', \App\Http\Controllers\positionController::class);
 });
