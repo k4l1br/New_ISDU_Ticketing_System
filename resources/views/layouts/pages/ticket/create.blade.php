@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1><i class="fas fa-ticket-alt"></i> Create New Ticket</h1>
+            <h1>Create New Ticket</h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
@@ -18,15 +18,16 @@
 @stop
 
 @section('content')
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-10">
-            <div class="card card-primary card-outline">
-                <div class="card-header">
-                    <h3 class="card-title">
-                        <i class="fas fa-plus-circle"></i> Ticket Information
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary card-outline shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom-0" style="padding-bottom: 0.5rem;">
+                    <h3 class="card-title mb-0 font-weight-bold text-primary" style="font-size: 1.25rem;">
+                        <i class="fas fa-plus mr-2 text-primary"></i>Ticket Information
                     </h3>
+                    <!-- Removed Back to List button -->
                 </div>
-                
+                <hr class="my-0">
                 <form action="{{ route('ticket.store') }}" method="POST">
                     @csrf
                     <div class="card-body">
@@ -55,7 +56,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="fullName">
-                                        Full Name <span class="text-danger">*</span>
+                                        Full Name *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -78,7 +79,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="position">
-                                        Position <span class="text-danger">*</span>
+                                        Position *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -108,7 +109,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="designation">
-                                        Designation <span class="text-danger">*</span>
+                                        Designation *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -132,7 +133,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="contactNumber">
-                                        Contact Number <span class="text-danger">*</span>
+                                        Contact Number *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -157,7 +158,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="emailAddress">
-                                        Email Address <span class="text-danger">*</span>
+                                        Email Address *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -180,13 +181,18 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="reqOffice">
-                                        Requesting Office <span class="text-danger">*</span>
+                                        Requesting Office *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-building"></i></span>
                                         </div>
-                                        <input type="text" name="reqOffice" id="reqOffice" class="form-control @error('reqOffice') is-invalid @enderror" value="{{ old('reqOffice') }}" placeholder="Enter Requesting Office (E.g. CEISSAFP / ISG, CEISSAFP)" required>
+                                        <select name="reqOffice" id="reqOffice" class="form-control select2 @error('reqOffice') is-invalid @enderror" required>
+                                            <option value="">Select or type office</option>
+                                            @foreach($reqOffices as $office)
+                                                <option value="{{ $office }}" {{ old('reqOffice') == $office ? 'selected' : '' }}>{{ $office }}</option>
+                                            @endforeach
+                                        </select>
                                         @error('reqOffice')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -210,7 +216,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="reference">
-                                        Reference <span class="text-danger">*</span>
+                                        Reference *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -238,7 +244,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="authority">
-                                        Authority <span class="text-danger">*</span>
+                                        Authority *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -263,7 +269,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="status">
-                                        Status <span class="text-danger">*</span>
+                                        Status *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -288,7 +294,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="unitResponsible">
-                                        Unit Responsible <span class="text-danger">*</span>
+                                        Unit Responsible *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -459,9 +465,11 @@
             });
             
             // Success message if form was submitted successfully
-            @if(session('success'))
-                toastr.success('{{ session('success') }}');
-            @endif
         });
     </script>
+    @if(session('success'))
+        <script>
+            toastr.success("{{ session('success') }}");
+        </script>
+    @endif
 @stop

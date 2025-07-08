@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
+    'title' => 'CEISSAFP TICKETING SYSTEM',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
+    'logo' => '<span style="font-weight:bold; letter-spacing:1px; white-space:normal; display:block; line-height:1.1;">CEISSAFP<br><span style="font-size:12px; font-weight:normal;">TICKETING SYSTEM</span></span>',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -348,40 +348,24 @@ return [
             'icon' => 'fas fa-fw fa-lock',
         ],
         [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
+            'text' => 'Administrator',
+            'icon' => 'fas fa-user-cog',
             'submenu' => [
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Add Requesting Office',
+                    'url' => 'reqOffice',
+                    'icon' => 'fas fa-building',
+                    // This points to the reqOfficeController@index and views/reqOffice/index.blade.php
                 ],
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                        ],
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                            'submenu' => [
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                            ],
-                        ],
-                    ],
+                    'text' => 'Manage Users',
+                    'url' => 'admin/users',
+                    'icon' => 'fas fa-users-cog',
                 ],
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'System Settings',
+                    'url' => 'admin/settings',
+                    'icon' => 'fas fa-cogs',
                 ],
             ],
         ],

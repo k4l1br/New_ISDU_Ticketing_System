@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
+use App\Models\reqOffice;
 use Illuminate\Http\Request;
 
 class ticketController extends Controller
@@ -21,9 +22,9 @@ class ticketController extends Controller
      */
     public function create()
     {
-        // Retrieve other offices from session for the dropdown
-        $otherOffices = session('other_offices', []);
-        return view('layouts.pages.ticket.create', compact('otherOffices'));
+        // Get all unique requesting offices from reqOffice table
+        $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice');
+        return view('layouts.pages.ticket.create', compact('reqOffices'));
     }
 
     /**

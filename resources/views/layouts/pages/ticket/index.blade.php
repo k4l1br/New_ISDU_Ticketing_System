@@ -10,14 +10,14 @@
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
                 <li class="breadcrumb-item"><a href="{{ route('ticket.index') }}">Dashboard</a></li>
-                <li class="breadcrumb-item active">Tickets</li>dash
+                <li class="breadcrumb-item active">Tickets</li>
             </ol>
         </div>
     </div>
 @endsection
 
 @section('content')
-<div class="container-fluid"> 
+<div class="container-fluid px-0"> 
     <!-- Success Alert -->
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -89,13 +89,13 @@
                             <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
                             <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
                             <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
+                            <th><!-- Email: no search --></th>
                             <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
                             <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
                             <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
+                            <th><!-- Status: no search --></th>
                             <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
-                            <th></th>
+                            <th><!-- Actions column: keep empty to match header count --></th>
                         </tr>
                     </thead>
                     <tbody>
