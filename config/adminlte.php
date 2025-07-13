@@ -266,6 +266,7 @@ return [
     'profile_url' => false,
     'disable_darkmode_routes' => false,
 
+
     /*
     |--------------------------------------------------------------------------
     | Laravel Asset Bundling
@@ -338,13 +339,13 @@ return [
 
         ['header' => 'account_settings'],
         [
-            'text' => 'profile',
-            'url' => 'admin/settings',
+            'text' => 'View Profile',
+            'url' => '/profile',
             'icon' => 'fas fa-fw fa-user',
         ],
         [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
+             'text' => 'Password Change',
+            'url'  => 'password/edit',  // or @route('password.edit') in Blade
             'icon' => 'fas fa-fw fa-lock',
         ],
         [
@@ -352,6 +353,12 @@ return [
             'icon' => 'fas fa-user-cog',
             'submenu' => [
                 [
+                    'text' => 'Users',
+                    'url' => 'admin/users',
+                    'icon' => 'fas fa-fw fa-users',
+                    // This points to the reqOfficeController@index and views/reqOffice/index.blade.php
+                ],
+                 [
                     'text' => 'Add Requesting Office',
                     'url' => 'reqOffice',
                     'icon' => 'fas fa-building',
