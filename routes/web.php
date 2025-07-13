@@ -5,6 +5,7 @@ use App\Http\Controllers\ticketController;
 use App\Http\Controllers\reqOfficeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ticket;
@@ -38,11 +39,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard-per-unit', [DashboardController::class, 'getTicketsPerUnit']);
     Route::get('/dashboard-tasks-report', [DashboardController::class, 'tasksReport']);
 
+    // User Profile
+    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
+
+    // Admin User Management
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    });
+
     // Position page route 
     Route::get('/position', [PositionController::class, 'index'])->name('position.index');
     Route::middleware(['auth'])->group(function () {
     // Other routes...
 
     Route::resource('position', PositionController::class);
+
 });
 });
