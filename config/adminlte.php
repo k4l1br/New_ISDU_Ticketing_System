@@ -322,11 +322,10 @@ return [
             'can' => 'manage-blog',
         ],
         [
-            'text' => 'Dashboard',
-            'url' => '/tickets',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
+             'text' => 'Dashboard',
+             'url' => '/dashboard', // <-- Change this line
+             'icon' => 'fas fa-fw fa-tachometer-alt',
+             'label_color' => 'success',
         ],
 
          [
@@ -336,6 +335,8 @@ return [
             'label' => 4,
             'label_color' => 'success',
         ],
+
+
 
         ['header' => 'account_settings'],
         [
@@ -365,8 +366,8 @@ return [
                     // This points to the reqOfficeController@index and views/reqOffice/index.blade.php
                 ],
                 [
-                    'text' => 'Manage Users',
-                    'url' => 'admin/users',
+                    'text' => 'Add Positions',
+                    'url' => 'position',
                     'icon' => 'fas fa-users-cog',
                 ],
                 [
@@ -465,11 +466,11 @@ return [
             ],
         ],
         'Chartjs' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.bundle.min.js',
                 ],
             ],

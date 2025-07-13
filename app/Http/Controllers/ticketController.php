@@ -23,8 +23,9 @@ class ticketController extends Controller
     public function create()
     {
         // Get all unique requesting offices from reqOffice table
+        $positions = \App\Models\positionModel::orderBy('name')->pluck('name');
         $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice');
-        return view('layouts.pages.ticket.create', compact('reqOffices'));
+        return view('layouts.pages.ticket.create', compact('positions', 'reqOffices'));
     }
 
     /**
