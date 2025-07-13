@@ -34,7 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');
     Route::resource('/reqOffice', reqOfficeController::class);
 
-    // Dashboard routes
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-data', [DashboardController::class, 'getData']);
     Route::get('/dashboard-per-unit', [DashboardController::class, 'getTicketsPerUnit']);
@@ -44,7 +44,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/position', [PositionController::class, 'index'])->name('position.index');
     Route::middleware(['auth'])->group(function () {
     // Other routes...
-
     Route::resource('position', PositionController::class);
 });
 });
