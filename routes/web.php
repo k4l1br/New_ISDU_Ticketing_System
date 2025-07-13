@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ticket;
 
-
-
 // Redirect root to login
 Route::get('/', function () {
     return redirect()->route('login');
@@ -29,36 +27,31 @@ if (method_exists(Auth::class, 'routes')) {
 // Protected routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+    // Tickets
     Route::get('/tickets', [ticketController::class, 'index'])->name('tickets');
     Route::get('/tickets/create', [ticketController::class, 'create'])->name('pages.ticket.create');
     Route::resource('ticket', ticketController::class);
 
-     // Requesting Office routes
+    // Requesting Office
     Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');
     Route::resource('/reqOffice', reqOfficeController::class);
 
-    // Profile
+    // User Profile
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
-    
-    
+
     // Admin User Management
-    Route::prefix('admin')->name('admin.')->group(function() {
+    Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     });
 
-   
-
-   // Dashboard routes
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard-data', [DashboardController::class, 'getData']);
     Route::get('/dashboard-per-unit', [DashboardController::class, 'getTicketsPerUnit']);
     Route::get('/dashboard-tasks-report', [DashboardController::class, 'tasksReport']);
 
-   // Position page route 
+    // Position
     Route::get('/position', [PositionController::class, 'index'])->name('position.index');
-    Route::middleware(['auth'])->group(function () {
-    // Other routes...
-
     Route::resource('position', PositionController::class);
-});
 });
