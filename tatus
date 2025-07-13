@@ -1,0 +1,2439 @@
+[1mdiff --git a/app/Http/Controllers/Admin/UserController.php b/app/Http/Controllers/Admin/UserController.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..8e3299d[m
+[1m--- /dev/null[m
+[1m+++ b/app/Http/Controllers/Admin/UserController.php[m
+[36m@@ -0,0 +1,88 @@[m
+[32m+[m[32m<?php[m
+[32m+[m
+[32m+[m[32mnamespace App\Http\Controllers\Admin;[m
+[32m+[m
+[32m+[m[32muse App\Http\Controllers\Controller;[m
+[32m+[m[32muse App\Models\User;[m
+[32m+[m[32muse Illuminate\Http\Request;[m
+[32m+[m[32muse Illuminate\Support\Facades\Hash;[m
+[32m+[m[32muse Illuminate\Validation\Rules;[m
+[32m+[m
+[32m+[m[32mclass UserController extends Controller[m
+[32m+[m[32m{[m
+[32m+[m[41m    [m
+[32m+[m[32m    public function index(Request $request)[m
+[32m+[m[32m{[m
+[32m+[m[32m     $users = User::query()[m
+[32m+[m[32m            ->when($request->name, fn($q, $name) => $q->where('name', 'like', "%$name%"))[m
+[32m+[m[32m            ->when($request->email, fn($q, $email) => $q->where('email', 'like', "%$email%"))[m
+[32m+[m[32m            ->when($request->role, fn($q, $role) => $q->where('role', $role))[m
+[32m+[m[32m            ->orderBy('name')[m
+[32m+[m[32m            ->paginate(10);[m
+[32m+[m
+[32m+[m[32m        return view('admin.users.index', compact('users'));[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32m    public function create()[m
+[32m+[m[32m    {[m
+[32m+[m[32m        return view('admin.users.create');[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public function store(Request $request)[m
+[32m+[m[32m    {[m
+[32m+[m[32m    $request->validate([[m
+[32m+[m[32m        'name' => 'required|string|max:255',[m
+[32m+[m[32m        'email' => 'required|string|email|max:255|unique:users',[m
+[32m+[m[32m        'role' => 'required|string',[m
+[32m+[m[32m        'password' => 'required|string|min:8|confirmed',[m
+[32m+[m[32m    ]);[m
+[32m+[m
+[32m+[m[32m    User::create([[m
+[32m+[m[32m        'name' => $request->name,[m
+[32m+[m[32m        'email' => $request->email,[m
+[32m+[m[32m        'role' => $request->role,[m
+[32m+[m[32m        'password' => Hash::make($request->password),[m
+[32m+[m[32m    ]);[m
+[32m+[m
+[32m+[m[32m    return redirect()->route('admin.users.index')[m
+[32m+[m[32m           ->with('success', 'User created successfully.');[m
+[32m+[m[32m    }[m
+[32m+[m[32m    public function show(User $user)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        return view('admin.users.show', compact('user'));[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public function edit(User $user)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        return view('admin.users.edit', compact('user'));[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public function update(Request $request, User $user)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        $request->validate([[m
+[32m+[m[32m            'name' => ['required', 'string', 'max:255'],[m
+[32m+[m[32m            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],[m
+[32m+[m[32m            'role' => ['required', 'string'],[m
+[32m+[m[32m        ]);[m
+[32m+[m
+[32m+[m[32m        $user->update($request->only('name', 'email', 'role'));[m
+[32m+[m
+[32m+[m[32m        if ($request->filled('password')) {[m
+[32m+[m[32m            $user->update([[m
+[32m+[m[32m                'password' => Hash::make($request->password),[m
+[32m+[m[32m            ]);[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        return redirect()->route('admin.users.index')[m
+[32m+[m[32m               ->with('success', 'User updated successfully.');[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public function destroy(User $user)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        $user->delete();[m
+[32m+[m[32m        return redirect()->route('admin.users.index')[m
+[32m+[m[32m               ->with('success', 'User deleted successfully.');[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[41m    [m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/app/Http/Controllers/PasswordController.php b/app/Http/Controllers/PasswordController.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..a3492fc[m
+[1m--- /dev/null[m
+[1m+++ b/app/Http/Controllers/PasswordController.php[m
+[36m@@ -0,0 +1,48 @@[m
+[32m+[m[32m<?php[m
+[32m+[m
+[32m+[m[32mnamespace App\Http\Controllers;[m
+[32m+[m
+[32m+[m[32muse Illuminate\Http\Request;[m
+[32m+[m[32muse Illuminate\Support\Facades\Auth;[m
+[32m+[m[32muse Illuminate\Support\Facades\Hash;[m
+[32m+[m[32muse Illuminate\Validation\Rules\Password;[m
+[32m+[m
+[32m+[m[32mclass PasswordController extends Controller[m
+[32m+[m[32m{[m
+[32m+[m[32m    // Show password change form[m
+[32m+[m[32m    public function edit()[m
+[32m+[m[32m    {[m
+[32m+[m[32m        return view('passwords.edit');[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Update password[m
+[32m+[m[32m    public function update(Request $request)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        $request->validate([[m
+[32m+[m[32m            'current_password' => ['required', function ($attribute, $value, $fail) {[m
+[32m+[m[32m                /** @var \App\Models\User $user */[m
+[32m+[m[32m                $user = Auth::user();[m
+[32m+[m[32m                if (!Hash::check($value, $user->password)) {[m
+[32m+[m[32m                    $fail('The current password is incorrect.');[m
+[32m+[m[32m                }[m
+[32m+[m[32m            }],[m
+[32m+[m[32m            'new_password' => [[m
+[32m+[m[32m                'required',[m
+[32m+[m[32m                'confirmed',[m
+[32m+[m[32m                Password::min(8)[m
+[32m+[m[32m                    ->mixedCase()[m
+[32m+[m[32m                    ->numbers()[m
+[32m+[m[32m                    ->symbols()[m
+[32m+[m[32m                    ->uncompromised(),[m
+[32m+[m[32m            ],[m
+[32m+[m[32m        ]);[m
+[32m+[m
+[32m+[m[32m        /** @var \App\Models\User $user */[m
+[32m+[m[32m        $user = Auth::user();[m
+[32m+[m[32m        $user->update([[m
+[32m+[m[32m            'password' => Hash::make($request->new_password)[m
+[32m+[m[32m        ]);[m
+[32m+[m
+[32m+[m[32m        return back()->with('success', 'Password changed successfully!');[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/app/Http/Controllers/UserController.php b/app/Http/Controllers/UserController.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..8cdde41[m
+[1m--- /dev/null[m
+[1m+++ b/app/Http/Controllers/UserController.php[m
+[36m@@ -0,0 +1,15 @@[m
+[32m+[m[32m<?php[m
+[32m+[m
+[32m+[m[32mnamespace App\Http\Controllers;[m
+[32m+[m
+[32m+[m[32muse Illuminate\Http\Request;[m
+[32m+[m[32muse Illuminate\Support\Facades\Auth;[m
+[32m+[m
+[32m+[m[32mclass UserController extends Controller[m
+[32m+[m[32m{[m
+[32m+[m[32m    public function showProfile()[m
+[32m+[m[32m    {[m
+[32m+[m[32m        $user = Auth::user();[m
+[32m+[m[32m        return view('profile', compact('user'));[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[1mdiff --git a/app/Http/Controllers/positionController.php b/app/Http/Controllers/positionController.php[m
+[1mdeleted file mode 100644[m
+[1mindex a152028..0000000[m
+[1m--- a/app/Http/Controllers/positionController.php[m
+[1m+++ /dev/null[m
+[36m@@ -1,66 +0,0 @@[m
+[31m-<?php[m
+[31m-[m
+[31m-namespace App\Http\Controllers;[m
+[31m-[m
+[31m-use Illuminate\Http\Request;[m
+[31m-use App\Models\Position;[m
+[31m-use App\Models\positionModel;[m
+[31m-[m
+[31m-class positionController extends Controller[m
+[31m-{[m
+[31m-    // Show all positions[m
+[31m-    public function index()[m
+[31m-    {[m
+[31m-        $positions = \App\Models\positionModel::all();[m
+[31m-        return view('position.index', compact('positions'));[m
+[31m-    }[m
+[31m-[m
+[31m-    // Show create form[m
+[31m-    public function create()[m
+[31m-    {[m
+[31m-        return view('position.create');[m
+[31m-    }[m
+[31m-[m
+[31m-    // Store new position[m
+[31m-    public function store(Request $request)[m
+[31m-    {[m
+[31m-        $validated = $request->validate([[m
+[31m-            'name' => 'required|string|max:255|unique:position_models,name',[m
+[31m-        ]);[m
+[31m-[m
+[31m-        $position = new positionModel();[m
+[31m-        $position->name = $validated['name'];[m
+[31m-        $position->save();[m
+[31m-[m
+[31m-        return redirect()->route('position.index')->with('success', 'Position created successfully.');[m
+[31m-    }[m
+[31m-[m
+[31m-    // Show edit form[m
+[31m-    public function edit($id)[m
+[31m-    {[m
+[31m-        $position = \App\Models\positionModel::findOrFail($id);[m
+[31m-        return view('position.edit', compact('position'));[m
+[31m-    }[m
+[31m-[m
+[31m-    // Update position (only name)[m
+[31m-    public function update(Request $request, $id)[m
+[31m-    {[m
+[31m-        $validated = $request->validate([[m
+[31m-            'name' => 'required|string|max:255|unique:position_models,name,' . $id,[m
+[31m-        ]);[m
+[31m-[m
+[31m-        $position = \App\Models\positionModel::findOrFail($id);[m
+[31m-        $position->name = $validated['name'];[m
+[31m-        $position->save();[m
+[31m-[m
+[31m-        return redirect()->route('position.index')->with('success', 'Position updated successfully.');[m
+[31m-    }[m
+[31m-[m
+[31m-      public function destroy($id)[m
+[31m-    {[m
+[31m-        $position = \App\Models\positionModel::findOrFail($id);[m
+[31m-        $position->delete();[m
+[31m-[m
+[31m-        return redirect()->route('position.index')->with('success', 'Position deleted successfully.');[m
+[31m-    }[m
+[31m-}[m
+\ No newline at end of file[m
+[1mdiff --git a/app/Http/Controllers/ticketController.php b/app/Http/Controllers/ticketController.php[m
+[1mindex 6619c54..046dd62 100644[m
+[1m--- a/app/Http/Controllers/ticketController.php[m
+[1m+++ b/app/Http/Controllers/ticketController.php[m
+[36m@@ -23,9 +23,8 @@[m [mpublic function index()[m
+     public function create()[m
+     {[m
+         // Get all unique requesting offices from reqOffice table[m
+[31m-        $positions = \App\Models\positionModel::orderBy('name')->pluck('name');[m
+         $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice');[m
+[31m-        return view('layouts.pages.ticket.create', compact('positions', 'reqOffices'));[m
+[32m+[m[32m        return view('layouts.pages.ticket.create', compact('reqOffices'));[m
+     }[m
+ [m
+     /**[m
+[1mdiff --git a/app/Models/User.php b/app/Models/User.php[m
+[1mindex 749c7b7..cc74357 100644[m
+[1m--- a/app/Models/User.php[m
+[1m+++ b/app/Models/User.php[m
+[36m@@ -21,6 +21,7 @@[m [mclass User extends Authenticatable[m
+         'name',[m
+         'email',[m
+         'password',[m
+[32m+[m[32m        'role',[m
+     ];[m
+ [m
+     /**[m
+[1mdiff --git a/app/Models/positionModel.php b/app/Models/positionModel.php[m
+[1mdeleted file mode 100644[m
+[1mindex a26b912..0000000[m
+[1m--- a/app/Models/positionModel.php[m
+[1m+++ /dev/null[m
+[36m@@ -1,13 +0,0 @@[m
+[31m-<?php[m
+[31m-[m
+[31m-namespace App\Models;[m
+[31m-[m
+[31m-use Illuminate\Database\Eloquent\Model;[m
+[31m-[m
+[31m-class positionModel extends Model[m
+[31m-{[m
+[31m-    protected $fillable = [[m
+[31m-        'position',[m
+[31m-        'description',[m
+[31m-    ];[m
+[31m-}[m
+[1mdiff --git a/config/adminlte.php b/config/adminlte.php[m
+[1mindex ebe2f75..a8f165d 100644[m
+[1m--- a/config/adminlte.php[m
+[1m+++ b/config/adminlte.php[m
+[36m@@ -266,6 +266,7 @@[m
+     'profile_url' => false,[m
+     'disable_darkmode_routes' => false,[m
+ [m
+[32m+[m
+     /*[m
+     |--------------------------------------------------------------------------[m
+     | Laravel Asset Bundling[m
+[36m@@ -336,17 +337,15 @@[m
+             'label_color' => 'success',[m
+         ],[m
+ [m
+[31m-[m
+[31m-[m
+         ['header' => 'account_settings'],[m
+         [[m
+[31m-            'text' => 'profile',[m
+[31m-            'url' => 'admin/settings',[m
+[32m+[m[32m            'text' => 'View Profile',[m
+[32m+[m[32m            'url' => '/profile',[m
+             'icon' => 'fas fa-fw fa-user',[m
+         ],[m
+         [[m
+[31m-            'text' => 'change_password',[m
+[31m-            'url' => 'admin/settings',[m
+[32m+[m[32m             'text' => 'Password Change',[m
+[32m+[m[32m            'url'  => 'password/edit',  // or @route('password.edit') in Blade[m
+             'icon' => 'fas fa-fw fa-lock',[m
+         ],[m
+         [[m
+[36m@@ -354,14 +353,20 @@[m
+             'icon' => 'fas fa-user-cog',[m
+             'submenu' => [[m
+                 [[m
+[32m+[m[32m                    'text' => 'Users',[m
+[32m+[m[32m                    'url' => 'admin/users',[m
+[32m+[m[32m                    'icon' => 'fas fa-fw fa-users',[m
+[32m+[m[32m                    // This points to the reqOfficeController@index and views/reqOffice/index.blade.php[m
+[32m+[m[32m                ],[m
+[32m+[m[32m                 [[m
+                     'text' => 'Add Requesting Office',[m
+                     'url' => 'reqOffice',[m
+                     'icon' => 'fas fa-building',[m
+                     // This points to the reqOfficeController@index and views/reqOffice/index.blade.php[m
+                 ],[m
+                 [[m
+[31m-                    'text' => 'Add Positions',[m
+[31m-                    'url' => 'position',[m
+[32m+[m[32m                    'text' => 'Manage Users',[m
+[32m+[m[32m                    'url' => 'admin/users',[m
+                     'icon' => 'fas fa-users-cog',[m
+                 ],[m
+                 [[m
+[1mdiff --git a/database/migrations/2025_07_08_000000_create_position_models_table.php b/database/migrations/2025_07_08_000000_create_position_models_table.php[m
+[1mdeleted file mode 100644[m
+[1mindex e905b6f..0000000[m
+[1m--- a/database/migrations/2025_07_08_000000_create_position_models_table.php[m
+[1m+++ /dev/null[m
+[36m@@ -1,23 +0,0 @@[m
+[31m-<?php[m
+[31m-[m
+[31m-use Illuminate\Database\Migrations\Migration;[m
+[31m-use Illuminate\Database\Schema\Blueprint;[m
+[31m-use Illuminate\Support\Facades\Schema;[m
+[31m-[m
+[31m-return new class extends Migration[m
+[31m-{[m
+[31m-    public function up(): void[m
+[31m-    {[m
+[31m-        Schema::create('position_models', function (Blueprint $table) {[m
+[31m-            $table->id();[m
+[31m-            $table->string('name')->unique();[m
+[31m-            $table->string('description')->nullable();[m
+[31m-            $table->timestamps();[m
+[31m-        });[m
+[31m-    }[m
+[31m-[m
+[31m-    public function down(): void[m
+[31m-    {[m
+[31m-        Schema::dropIfExists('position_models');[m
+[31m-    }[m
+[31m-};[m
+[1mdiff --git a/database/migrations/2025_07_08_081215_add_role_and_phone_to_users_table.php b/database/migrations/2025_07_08_081215_add_role_and_phone_to_users_table.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..a67958f[m
+[1m--- /dev/null[m
+[1m+++ b/database/migrations/2025_07_08_081215_add_role_and_phone_to_users_table.php[m
+[36m@@ -0,0 +1,29 @@[m
+[32m+[m[32m<?php[m
+[32m+[m
+[32m+[m[32muse Illuminate\Database\Migrations\Migration;[m
+[32m+[m[32muse Illuminate\Database\Schema\Blueprint;[m
+[32m+[m[32muse Illuminate\Support\Facades\Schema;[m
+[32m+[m
+[32m+[m[32mreturn new class extends Migration[m
+[32m+[m[32m{[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * Run the migrations.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    public function up(): void[m
+[32m+[m[32m    {[m
+[32m+[m[32m      Schema::table('users', function (Blueprint $table) {[m
+[32m+[m[32m        $table->string('role')->nullable();[m
+[32m+[m[32m        $table->string('phone')->nullable();[m
+[32m+[m[32m        });[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    /**[m
+[32m+[m[32m     * Reverse the migrations.[m
+[32m+[m[32m     */[m
+[32m+[m[32m    public function down(): void[m
+[32m+[m[32m    {[m
+[32m+[m[32m        Schema::table('users', function (Blueprint $table) {[m
+[32m+[m[32m            //[m
+[32m+[m[32m        });[m
+[32m+[m[32m    }[m
+[32m+[m[32m};[m
+[1mdiff --git a/resources/views/admin/users/create.blade.php b/resources/views/admin/users/create.blade.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..5625b55[m
+[1m--- /dev/null[m
+[1m+++ b/resources/views/admin/users/create.blade.php[m
+[36m@@ -0,0 +1,73 @@[m
+[32m+[m[32m@extends('layouts.app')[m
+[32m+[m
+[32m+[m[32m@section('content')[m
+[32m+[m[32m<div class="container">[m
+[32m+[m[32m    <div class="card">[m
+[32m+[m[32m        <div class="card-header">[m
+[32m+[m[32m            <h5>Create New User</h5>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div class="card-body">[m
+[32m+[m[32m            <form method="POST" action="{{ route('admin.users.store') }}">[m
+[32m+[m[32m                @csrf[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="name">Name</label>[m
+[32m+[m[32m                    <input type="text" class="form-control @error('name') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                           id="name" name="name" value="{{ old('name') }}" required>[m
+[32m+[m[32m                    @error('name')[m
+[32m+[m[32m                        <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                            <strong>{{ $message }}</strong>[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    @enderror[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="email">Email</label>[m
+[32m+[m[32m                    <input type="email" class="form-control @error('email') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                           id="email" name="email" value="{{ old('email') }}" required>[m
+[32m+[m[32m                    @error('email')[m
+[32m+[m[32m                        <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                            <strong>{{ $message }}</strong>[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    @enderror[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="role">Role</label>[m
+[32m+[m[32m                    <select class="form-control @error('role') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                            id="role" name="role" required>[m
+[32m+[m[32m                        <option value="">Select Role</option>[m
+[32m+[m[32m                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>[m
+[32m+[m[32m                        <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>[m
+[32m+[m[32m                    </select>[m
+[32m+[m[32m                    @error('role')[m
+[32m+[m[32m                        <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                            <strong>{{ $message }}</strong>[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    @enderror[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="password">Password</label>[m
+[32m+[m[32m                    <input type="password" class="form-control @error('password') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                           id="password" name="password" required>[m
+[32m+[m[32m                    @error('password')[m
+[32m+[m[32m                        <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                            <strong>{{ $message }}</strong>[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    @enderror[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="password_confirmation">Confirm Password</label>[m
+[32m+[m[32m                    <input type="password" class="form-control"[m[41m [m
+[32m+[m[32m                           id="password_confirmation" name="password_confirmation" required>[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <button type="submit" class="btn btn-primary">Create User</button>[m
+[32m+[m[32m                <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Cancel</a>[m
+[32m+[m[32m            </form>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m</div>[m
+[32m+[m[32m@endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/admin/users/delete.blade.php b/resources/views/admin/users/delete.blade.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..34becaa[m
+[1m--- /dev/null[m
+[1m+++ b/resources/views/admin/users/delete.blade.php[m
+[36m@@ -0,0 +1,57 @@[m
+[32m+[m[32m@extends('adminlte::page')[m
+[32m+[m
+[32m+[m[32m@section('title', 'Users')[m
+[32m+[m
+[32m+[m[32m@section('content_header')[m
+[32m+[m[32m    <h1 class="m-0 text-dark">Users List</h1>[m
+[32m+[m[32m@endsection[m
+[32m+[m
+[32m+[m[32m@section('content')[m
+[32m+[m[32m    @if (session('success'))[m
+[32m+[m[32m        <div class="alert alert-success">{{ session('success') }}</div>[m
+[32m+[m[32m    @endif[m
+[32m+[m
+[32m+[m[32m    <a href="{{ route('admin.users.create') }}" class="btn btn-primary mb-3">[m
+[32m+[m[32m        <i class="fas fa-plus"></i> Add New User[m
+[32m+[m[32m    </a>[m
+[32m+[m
+[32m+[m[32m    <div class="card">[m
+[32m+[m[32m        <div class="card-body">[m
+[32m+[m[32m            <table class="table table-bordered table-hover">[m
+[32m+[m[32m                <thead>[m
+[32m+[m[32m                    <tr>[m
+[32m+[m[32m                        <th>#</th>[m
+[32m+[m[32m                        <th>Name</th>[m
+[32m+[m[32m                        <th>Email</th>[m
+[32m+[m[32m                        <th>Role</th>[m
+[32m+[m[32m                        <th>Actions</th>[m
+[32m+[m[32m                    </tr>[m
+[32m+[m[32m                </thead>[m
+[32m+[m[32m                <tbody>[m
+[32m+[m[32m                    @foreach ($users as $index => $user)[m
+[32m+[m[32m                        <tr>[m
+[32m+[m[32m                            <td>{{ $index + 1 }}</td>[m
+[32m+[m[32m                            <td>{{ $user->name }}</td>[m
+[32m+[m[32m                            <td>{{ $user->email }}</td>[m
+[32m+[m[32m                            <td>{{ ucfirst($user->role) }}</td>[m
+[32m+[m[32m                            <td>[m
+[32m+[m[32m                                <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-warning">[m
+[32m+[m[32m                                    <i class="fas fa-edit"></i> Edit[m
+[32m+[m[32m                                </a>[m
+[32m+[m
+[32m+[m[32m                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure to delete this user?');">[m
+[32m+[m[32m                                    @csrf[m
+[32m+[m[32m                                    @method('DELETE')[m
+[32m+[m[32m                                    <button type="submit" class="btn btn-sm btn-danger">[m
+[32m+[m[32m                                        <i class="fas fa-trash"></i> Delete[m
+[32m+[m[32m                                    </button>[m
+[32m+[m[32m                                </form>[m
+[32m+[m
+[32m+[m[32m                            </td>[m
+[32m+[m[32m                        </tr>[m
+[32m+[m[32m                    @endforeach[m
+[32m+[m[32m                </tbody>[m
+[32m+[m[32m            </table>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m@endsection[m
+[1mdiff --git a/resources/views/admin/users/edit.blade.php b/resources/views/admin/users/edit.blade.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..aba0f47[m
+[1m--- /dev/null[m
+[1m+++ b/resources/views/admin/users/edit.blade.php[m
+[36m@@ -0,0 +1,84 @@[m
+[32m+[m[32m@extends('adminlte::page')[m
+[32m+[m
+[32m+[m[32m@section('title', 'Edit User')[m
+[32m+[m
+[32m+[m[32m@section('content_header')[m
+[32m+[m[32m    <h1 class="m-0 text-dark">Edit User</h1>[m
+[32m+[m[32m@endsection[m
+[32m+[m
+[32m+[m[32m@section('content')[m
+[32m+[m[32m    @if ($errors->any())[m
+[32m+[m[32m        <div class="alert alert-danger">[m
+[32m+[m[32m            <strong>Whoops! Please fix the errors below:</strong>[m
+[32m+[m[32m            <ul class="mb-0 mt-1">[m
+[32m+[m[32m                @foreach ($errors->all() as $error)[m
+[32m+[m[32m                    <li>{{ $error }}</li>[m
+[32m+[m[32m                @endforeach[m
+[32m+[m[32m            </ul>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    @endif[m
+[32m+[m
+[32m+[m[32m    <div class="card">[m
+[32m+[m[32m        <div class="card-body">[m
+[32m+[m[32m            <form action="{{ route('admin.users.update', $user->id) }}" method="POST">[m
+[32m+[m[32m                @csrf[m
+[32m+[m[32m                @method('PUT')[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="name"><strong>Name</strong></label>[m
+[32m+[m[32m                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                           value="{{ old('name', $user->name) }}" required>[m
+[32m+[m[32m                    @error('name')[m
+[32m+[m[32m                        <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                            <strong>{{ $message }}</strong>[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    @enderror[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="email"><strong>Email</strong></label>[m
+[32m+[m[32m                    <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                           value="{{ old('email', $user->email) }}" required>[m
+[32m+[m[32m                    @error('email')[m
+[32m+[m[32m                        <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                            <strong>{{ $message }}</strong>[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    @enderror[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="role"><strong>Role</strong></label>[m
+[32m+[m[32m                    <select name="role" class="form-control @error('role') is-invalid @enderror" required>[m
+[32m+[m[32m                        <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>[m
+[32m+[m[32m                        <option value="user" {{ old('role', $user->role) == 'user' ? 'selected' : '' }}>User</option>[m
+[32m+[m[32m                    </select>[m
+[32m+[m[32m                    @error('role')[m
+[32m+[m[32m                        <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                            <strong>{{ $message }}</strong>[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    @enderror[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="password"><strong>Password</strong> (Leave blank to keep current password)</label>[m
+[32m+[m[32m                    <input type="password" name="password" class="form-control @error('password') is-invalid @enderror">[m
+[32m+[m[32m                    @error('password')[m
+[32m+[m[32m                        <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                            <strong>{{ $message }}</strong>[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    @enderror[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label for="password_confirmation"><strong>Confirm Password</strong></label>[m
+[32m+[m[32m                    <input type="password" name="password_confirmation" class="form-control">[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <button type="submit" class="btn btn-primary">Update User</button>[m
+[32m+[m[32m                    <a href="{{ route('admin.users.index') }}" class="btn btn-default">Cancel</a>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </form>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m@endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/admin/users/index.blade.php b/resources/views/admin/users/index.blade.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..df31c4c[m
+[1m--- /dev/null[m
+[1m+++ b/resources/views/admin/users/index.blade.php[m
+[36m@@ -0,0 +1,151 @@[m
+[32m+[m[32m@extends('adminlte::page')[m
+[32m+[m
+[32m+[m[32m@section('title', 'User Management')[m
+[32m+[m
+[32m+[m[32m@section('content')[m
+[32m+[m[32m<div class="card">[m
+[32m+[m[32m    <div class="card-header">[m
+[32m+[m[32m        <h3 class="card-title">Users List</h3>[m
+[32m+[m[32m        <div class="card-tools">[m
+[32m+[m[32m            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">[m
+[32m+[m[32m                <i class="fas fa-plus"></i> Add New User[m
+[32m+[m[32m            </a>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m    <div class="card-body">[m
+[32m+[m[32m        <table class="table table-bordered">[m
+[32m+[m[32m            <thead>[m
+[32m+[m[32m                <tr>[m
+[32m+[m[32m                    <th>Name</th>[m
+[32m+[m[32m                    <th>Email</th>[m
+[32m+[m[32m                    <th>Role</th>[m
+[32m+[m[32m                    <th>Actions</th>[m
+[32m+[m[32m                </tr>[m
+[32m+[m[32m                <tr>[m
+[32m+[m[32m                    <th>[m
+[32m+[m[32m                        <input type="text"[m[41m [m
+[32m+[m[32m                               class="form-control form-control-sm"[m[41m [m
+[32m+[m[32m                               name="name_search"[m[41m [m
+[32m+[m[32m                               placeholder="Search name..."[m
+[32m+[m[32m                               value="{{ request('name_search') }}"[m
+[32m+[m[32m                               form="searchForm">[m
+[32m+[m[32m                    </th>[m
+[32m+[m[32m                    <th>[m
+[32m+[m[32m                        <input type="text"[m[41m [m
+[32m+[m[32m                               class="form-control form-control-sm"[m[41m [m
+[32m+[m[32m                               name="email_search"[m[41m [m
+[32m+[m[32m                               placeholder="Search email..."[m
+[32m+[m[32m                               value="{{ request('email_search') }}"[m
+[32m+[m[32m                               form="searchForm">[m
+[32m+[m[32m                    </th>[m
+[32m+[m[32m                    <th>[m
+[32m+[m[32m                        <select class="form-control form-control-sm" name="role_search" form="searchForm">[m
+[32m+[m[32m                            <option value="">All Roles</option>[m
+[32m+[m[32m                            <option value="admin" {{ request('role_search') == 'admin' ? 'selected' : '' }}>Admin</option>[m
+[32m+[m[32m                            <option value="user" {{ request('role_search') == 'user' ? 'selected' : '' }}>User</option>[m
+[32m+[m[32m                        </select>[m
+[32m+[m[32m                    </th>[m
+[32m+[m[32m                    <th></th>[m
+[32m+[m[32m                </tr>[m
+[32m+[m[32m            </thead>[m
+[32m+[m[32m            <tbody>[m
+[32m+[m[32m                @foreach($users as $user)[m
+[32m+[m[32m                <tr>[m
+[32m+[m[32m                    <td>{{ $user->name }}</td>[m
+[32m+[m[32m                    <td>{{ $user->email }}</td>[m
+[32m+[m[32m                    <td>[m
+[32m+[m[32m                        <span class="badge badge-{{ $user->role == 'admin' ? 'success' : 'primary' }}">[m
+[32m+[m[32m                            {{ ucfirst($user->role) }}[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    </td>[m
+[32m+[m[32m                    <td>[m
+[32m+[m[32m                        <!-- Edit Button -->[m
+[32m+[m[32m                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm">[m
+[32m+[m[32m                            <i class="fas fa-edit"></i>[m
+[32m+[m[32m                        </a>[m
+[32m+[m[41m                        [m
+[32m+[m[41m                    [m
+[32m+[m[41m                        [m
+[32m+[m[32m                        <!-- Review Button - Modal Version (Alternative) -->[m
+[32m+[m[32m                        <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#reviewModal-{{ $user->id }}">[m
+[32m+[m[32m                            <i class="fas fa-eye"></i>[m
+[32m+[m[32m                        </button>[m
+[32m+[m[41m                        [m
+[32m+[m[32m                        <!-- Delete Button -->[m
+[32m+[m[32m                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline">[m
+[32m+[m[32m                            @csrf[m
+[32m+[m[32m                            @method('DELETE')[m
+[32m+[m[32m                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">[m
+[32m+[m[32m                                <i class="fas fa-trash"></i>[m
+[32m+[m[32m                            </button>[m
+[32m+[m[32m                        </form>[m
+[32m+[m[32m                    </td>[m
+[32m+[m[32m                </tr>[m
+[32m+[m[32m                @endforeach[m
+[32m+[m[32m            </tbody>[m
+[32m+[m[32m        </table>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m    <div class="card-footer">[m
+[32m+[m[32m        {{ $users->appends(request()->except('page'))->links() }}[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m</div>[m
+[32m+[m
+[32m+[m[32m<!-- Search Form -->[m
+[32m+[m[32m<form id="searchForm" method="GET" action="{{ route('admin.users.index') }}" style="display: none;">[m
+[32m+[m[32m    @foreach(request()->except('name_search', 'email_search', 'role_search', 'page') as $key => $value)[m
+[32m+[m[32m        <input type="hidden" name="{{ $key }}" value="{{ $value }}">[m
+[32m+[m[32m    @endforeach[m
+[32m+[m[32m</form>[m
+[32m+[m
+[32m+[m[32m<!-- Review Modals -->[m
+[32m+[m[32m@foreach($users as $user)[m
+[32m+[m[32m<div class="modal fade" id="reviewModal-{{ $user->id }}" tabindex="-1" role="dialog" aria-hidden="true">[m
+[32m+[m[32m    <div class="modal-dialog" role="document">[m
+[32m+[m[32m        <div class="modal-content">[m
+[32m+[m[32m            <div class="modal-header">[m
+[32m+[m[32m                <h5 class="modal-title">User Details: {{ $user->name }}</h5>[m
+[32m+[m[32m                <button type="button" class="close" data-dismiss="modal" aria-label="Close">[m
+[32m+[m[32m                    <span aria-hidden="true">&times;</span>[m
+[32m+[m[32m                </button>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m            <div class="modal-body">[m
+[32m+[m[32m                <div class="row mb-3">[m
+[32m+[m[32m                    <div class="col-md-4 font-weight-bold">Name:</div>[m
+[32m+[m[32m                    <div class="col-md-8">{{ $user->name }}</div>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m                <div class="row mb-3">[m
+[32m+[m[32m                    <div class="col-md-4 font-weight-bold">Email:</div>[m
+[32m+[m[32m                    <div class="col-md-8">{{ $user->email }}</div>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m                <div class="row mb-3">[m
+[32m+[m[32m                    <div class="col-md-4 font-weight-bold">Role:</div>[m
+[32m+[m[32m                    <div class="col-md-8">[m
+[32m+[m[32m                        <span class="badge badge-{{ $user->role == 'admin' ? 'success' : 'primary' }}">[m
+[32m+[m[32m                            {{ ucfirst($user->role) }}[m
+[32m+[m[32m                        </span>[m
+[32m+[m[32m                    </div>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m                <div class="row mb-3">[m
+[32m+[m[32m                    <div class="col-md-4 font-weight-bold">Created At:</div>[m
+[32m+[m[32m                    <div class="col-md-8">{{ $user->created_at->format('M d, Y H:i') }}</div>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m            <div class="modal-footer">[m
+[32m+[m[32m                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m</div>[m
+[32m+[m[32m@endforeach[m
+[32m+[m
+[32m+[m[32m@section('js')[m
+[32m+[m[32m<script>[m
+[32m+[m[32m    // Submit form when search fields change[m
+[32m+[m[32m    document.querySelectorAll('#searchForm input, #searchForm select').forEach(element => {[m
+[32m+[m[32m        element.addEventListener('change', function() {[m
+[32m+[m[32m            document.getElementById('searchForm').submit();[m
+[32m+[m[32m        });[m
+[32m+[m[32m    });[m
+[32m+[m[32m</script>[m
+[32m+[m[32m@endsection[m
+[32m+[m[32m@endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/admin/users/review.blade.php b/resources/views/admin/users/review.blade.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e4beaec[m
+[1m--- /dev/null[m
+[1m+++ b/resources/views/admin/users/review.blade.php[m
+[36m@@ -0,0 +1,53 @@[m
+[32m+[m[32m@extends('adminlte::page')[m
+[32m+[m
+[32m+[m[32m@section('title', 'Review User')[m
+[32m+[m
+[32m+[m[32m@section('content')[m
+[32m+[m[32m<div class="card">[m
+[32m+[m[32m    <div class="card-header">[m
+[32m+[m[32m        <h3 class="card-title">User Details</h3>[m
+[32m+[m[32m        <div class="card-tools">[m
+[32m+[m[32m            <a href="{{ route('admin.users.index') }}" class="btn btn-default">[m
+[32m+[m[32m                <i class="fas fa-arrow-left"></i> Back to List[m
+[32m+[m[32m            </a>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m    <div class="card-body">[m
+[32m+[m[32m        <div class="row">[m
+[32m+[m[32m            <div class="col-md-6">[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label>Name</label>[m
+[32m+[m[32m                    <input type="text" class="form-control" value="{{ $user->name }}" readonly>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m            <div class="col-md-6">[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label>Email</label>[m
+[32m+[m[32m                    <input type="text" class="form-control" value="{{ $user->email }}" readonly>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m        <div class="row">[m
+[32m+[m[32m            <div class="col-md-6">[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label>Role</label>[m
+[32m+[m[32m                    <input type="text" class="form-control"[m[41m [m
+[32m+[m[32m                           value="{{ ucfirst($user->role) }}" readonly>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m            <div class="col-md-6">[m
+[32m+[m[32m                <div class="form-group">[m
+[32m+[m[32m                    <label>Account Created</label>[m
+[32m+[m[32m                    <input type="text" class="form-control"[m[41m [m
+[32m+[m[32m                           value="{{ $user->created_at->format('M d, Y H:i') }}" readonly>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m    <div class="card-footer">[m
+[32m+[m[32m        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning">[m
+[32m+[m[32m            <i class="fas fa-edit"></i> Edit User[m
+[32m+[m[32m        </a>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m</div>[m
+[32m+[m[32m@endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/layouts/app.blade.php b/resources/views/layouts/app.blade.php[m
+[1mindex 31a766d..35d51de 100644[m
+[1m--- a/resources/views/layouts/app.blade.php[m
+[1m+++ b/resources/views/layouts/app.blade.php[m
+[36m@@ -3,7 +3,7 @@[m
+ @section('title', 'Dashboard')[m
+ [m
+ @section('content_header')[m
+[31m-    <h1>Dashboard</h1>[m
+[32m+[m[32m    <h1>Admin</h1>[m
+ @stop[m
+ [m
+ @section('content')[m
+[1mdiff --git a/resources/views/layouts/navigatiom.blade.php b/resources/views/layouts/navigatiom.blade.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..4e4da40[m
+[1m--- /dev/null[m
+[1m+++ b/resources/views/layouts/navigatiom.blade.php[m
+[36m@@ -0,0 +1,5 @@[m
+[32m+[m[32m<li class="nav-item">[m
+[32m+[m[32m    <a class="nav-link" href="{{ route('profile') }}">[m
+[32m+[m[32m        <i class="fas fa-user"></i> <p>My Profile</p>[m
+[32m+[m[32m    </a>[m
+[32m+[m[32m</li>[m
+[1mdiff --git a/resources/views/layouts/pages/ticket/create.blade.php b/resources/views/layouts/pages/ticket/create.blade.php[m
+[1mindex d93f5d4..7b15fd5 100644[m
+[1m--- a/resources/views/layouts/pages/ticket/create.blade.php[m
+[1m+++ b/resources/views/layouts/pages/ticket/create.blade.php[m
+[36m@@ -85,19 +85,18 @@[m [mclass="form-control @error('fullName') is-invalid @enderror"[m
+                                         <div class="input-group-prepend">[m
+                                             <span class="input-group-text"><i class="fas fa-briefcase"></i></span>[m
+                                         </div>[m
+[31m-                                            <select name="position" [m
+[31m-                                                    id="position" [m
+[31m-                                                    class="form-control select2 @error('position') is-invalid @enderror" [m
+[31m-                                                    required>[m
+[31m-                                                <option value="">Select or type position</option>[m
+[31m-                                                @if(isset($positions) && count($positions))[m
+[31m-                                                    @foreach($positions as $position)[m
+[31m-                                                        <option value="{{ $position }}" {{ old('position') == $position ? 'selected' : '' }}>[m
+[31m-                                                            {{ $position }}[m
+[31m-                                                        </option>[m
+[31m-                                                    @endforeach[m
+[31m-                                                @endif[m
+[31m-                                            </select>[m
+[32m+[m[32m                                        <select name="position"[m[41m [m
+[32m+[m[32m                                                id="position"[m[41m [m
+[32m+[m[32m                                                class="form-control select2 @error('position') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                                                required>[m
+[32m+[m[32m                                            <option value="">Select or type position</option>[m
+[32m+[m[32m                                            <option value="Manager" {{ old('position') == 'Manager' ? 'selected' : '' }}>Manager</option>[m
+[32m+[m[32m                                            <option value="Supervisor" {{ old('position') == 'Supervisor' ? 'selected' : '' }}>Supervisor</option>[m
+[32m+[m[32m                                            <option value="Staff" {{ old('position') == 'Staff' ? 'selected' : '' }}>Staff</option>[m
+[32m+[m[32m                                            <option value="Officer" {{ old('position') == 'Officer' ? 'selected' : '' }}>Officer</option>[m
+[32m+[m[32m                                            <option value="Clerk" {{ old('position') == 'Clerk' ? 'selected' : '' }}>Clerk</option>[m
+[32m+[m[32m                                            <option value="Assistant" {{ old('position') == 'Assistant' ? 'selected' : '' }}>Assistant</option>[m
+[32m+[m[32m                                        </select>[m
+                                         @error('position')[m
+                                             <span class="invalid-feedback">{{ $message }}</span>[m
+                                         @enderror[m
+[1mdiff --git a/resources/views/layouts/pages/ticket/index.blade.php b/resources/views/layouts/pages/ticket/index.blade.php[m
+[1mindex 517cacb..1f09f3f 100644[m
+[1m--- a/resources/views/layouts/pages/ticket/index.blade.php[m
+[1m+++ b/resources/views/layouts/pages/ticket/index.blade.php[m
+[36m@@ -1,396 +1,396 @@[m
+[31m-@extends('adminlte::page')[m
+[32m+[m[32m        @extends('adminlte::page')[m
+ [m
+[31m-@section('title', 'Tickets Management')[m
+[32m+[m[32m        @section('title', 'Tickets Management')[m
+ [m
+[31m-@section('content_header')[m
+[31m-    <div class="row mb-2">[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <h1 class="m-0">Tickets Management</h1>[m
+[31m-        </div>[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <ol class="breadcrumb float-sm-right">[m
+[31m-                <li class="breadcrumb-item"><a href="{{ route('ticket.index') }}">Dashboard</a></li>[m
+[31m-                <li class="breadcrumb-item active">Tickets</li>[m
+[31m-            </ol>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-@endsection[m
+[32m+[m[32m        @section('content_header')[m
+[32m+[m[32m            <div class="row mb-2">[m
+[32m+[m[32m                <div class="col-sm-6">[m
+[32m+[m[32m                    <h1 class="m-0">Tickets Management</h1>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m                <div class="col-sm-6">[m
+[32m+[m[32m                    <ol class="breadcrumb float-sm-right">[m
+[32m+[m[32m                        <li class="breadcrumb-item"><a href="{{ route('ticket.index') }}">Dashboard</a></li>[m
+[32m+[m[32m                        <li class="breadcrumb-item active">Tickets</li>[m
+[32m+[m[32m                    </ol>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        @endsection[m
+ [m
+[31m-@section('content')[m
+[31m-<div class="container-fluid px-0"> [m
+[31m-    <!-- Success Alert -->[m
+[31m-    @if(session('success'))[m
+[31m-        <div class="alert alert-success alert-dismissible fade show" role="alert">[m
+[31m-            <i class="fas fa-check-circle mr-2"></i>[m
+[31m-            {{ session('success') }}[m
+[31m-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">[m
+[31m-                <span aria-hidden="true">&times;</span>[m
+[31m-            </button>[m
+[31m-        </div>[m
+[31m-    @endif[m
+[32m+[m[32m        @section('content')[m
+[32m+[m[32m        <div class="container-fluid px-0">[m[41m [m
+[32m+[m[32m            <!-- Success Alert -->[m
+[32m+[m[32m            @if(session('success'))[m
+[32m+[m[32m                <div class="alert alert-success alert-dismissible fade show" role="alert">[m
+[32m+[m[32m                    <i class="fas fa-check-circle mr-2"></i>[m
+[32m+[m[32m                    {{ session('success') }}[m
+[32m+[m[32m                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">[m
+[32m+[m[32m                        <span aria-hidden="true">&times;</span>[m
+[32m+[m[32m                    </button>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            @endif[m
+ [m
+[31m-    <!-- Statistics Cards removed as requested -->[m
+[32m+[m[32m            <!-- Statistics Cards removed as requested -->[m
+ [m
+[31m-    <!-- Main Content Card -->[m
+[31m-    <div class="card card-primary card-outline">[m
+[31m-        <div class="card-header">[m
+[31m-            <h3 class="card-title">[m
+[31m-                <i class="fas fa-list mr-1"></i>[m
+[31m-                Tickets List[m
+[31m-            </h3>[m
+[31m-            <div class="card-tools">[m
+[31m-                <a href="{{ route('pages.ticket.create') }}" class="btn btn-primary btn-sm">[m
+[31m-                    <i class="fas fa-plus mr-1"></i>[m
+[31m-                    Create New Ticket[m
+[31m-                </a>[m
+[31m-            </div>[m
+[31m-        </div>[m
+[31m-        <div class="card-body">[m
+[31m-            <!-- Search and Filter Section -->[m
+[31m-            <div class="row mb-3">[m
+[31m-                <div class="col-md-6">[m
+[31m-                    <div class="form-group">[m
+[31m-                        <label for="global-search">Global Search:</label>[m
+[31m-                        <input type="text" id="global-search" class="form-control form-control-sm" placeholder="Search across all fields...">[m
+[32m+[m[32m            <!-- Main Content Card -->[m
+[32m+[m[32m            <div class="card card-primary card-outline">[m
+[32m+[m[32m                <div class="card-header">[m
+[32m+[m[32m                    <h3 class="card-title">[m
+[32m+[m[32m                        <i class="fas fa-list mr-1"></i>[m
+[32m+[m[32m                        Tickets List[m
+[32m+[m[32m                    </h3>[m
+[32m+[m[32m                    <div class="card-tools">[m
+[32m+[m[32m                        <a href="{{ route('pages.ticket.create') }}" class="btn btn-primary btn-sm">[m
+[32m+[m[32m                            <i class="fas fa-plus mr-1"></i>[m
+[32m+[m[32m                            Create New Ticket[m
+[32m+[m[32m                        </a>[m
+                     </div>[m
+                 </div>[m
+[31m-                <div class="col-md-6">[m
+[31m-                    <div class="form-group">[m
+[31m-                        <label for="status-filter">Filter by Status:</label>[m
+[31m-                        <select id="status-filter" class="form-control form-control-sm">[m
+[31m-                            <option value="">All Status</option>[m
+[31m-                            <option value="no action">No Action</option>[m
+[31m-                            <option value="in progress">In Progress</option>[m
+[31m-                            <option value="complete">Completed</option>[m
+[31m-                        </select>[m
+[32m+[m[32m                <div class="card-body">[m
+[32m+[m[32m                    <!-- Search and Filter Section -->[m
+[32m+[m[32m                    <div class="row mb-3">[m
+[32m+[m[32m                        <div class="col-md-6">[m
+[32m+[m[32m                            <div class="form-group">[m
+[32m+[m[32m                                <label for="global-search">Global Search:</label>[m
+[32m+[m[32m                                <input type="text" id="global-search" class="form-control form-control-sm" placeholder="Search across all fields...">[m
+[32m+[m[32m                            </div>[m
+[32m+[m[32m                        </div>[m
+[32m+[m[32m                        <div class="col-md-6">[m
+[32m+[m[32m                            <div class="form-group">[m
+[32m+[m[32m                                <label for="status-filter">Filter by Status:</label>[m
+[32m+[m[32m                                <select id="status-filter" class="form-control form-control-sm">[m
+[32m+[m[32m                                    <option value="">All Status</option>[m
+[32m+[m[32m                                    <option value="no action">No Action</option>[m
+[32m+[m[32m                                    <option value="in progress">In Progress</option>[m
+[32m+[m[32m                                    <option value="complete">Completed</option>[m
+[32m+[m[32m                                </select>[m
+[32m+[m[32m                            </div>[m
+[32m+[m[32m                        </div>[m
+                     </div>[m
+[31m-                </div>[m
+[31m-            </div>[m
+ [m
+[31m-            <!-- Responsive Table -->[m
+[31m-            <div class="table-responsive">[m
+[31m-                <table id="tickets-table" class="table table-bordered table-striped table-hover">[m
+[31m-                    <thead>[m
+[31m-                        <tr>[m
+[31m-                            <th><i class="fas fa-user mr-1"></i>Full Name</th>[m
+[31m-                            <th><i class="fas fa-briefcase mr-1"></i>Position</th>[m
+[31m-                            <th><i class="fas fa-id-badge mr-1"></i>Designation</th>[m
+[31m-                            <th><i class="fas fa-phone mr-1"></i>Contact</th>[m
+[31m-                            <th><i class="fas fa-envelope mr-1"></i>Email</th>[m
+[31m-                            <th><i class="fas fa-building mr-1"></i>Office</th>[m
+[31m-                            <th><i class="fas fa-hashtag mr-1"></i>Reference</th>[m
+[31m-                            <th><i class="fas fa-gavel mr-1"></i>Authority</th>[m
+[31m-                            <th><i class="fas fa-flag mr-1"></i>Status</th>[m
+[31m-                            <th><i class="fas fa-users mr-1"></i>Unit Responsible</th>[m
+[31m-                            <th><i class="fas fa-cogs mr-1"></i>Actions</th>[m
+[31m-                        </tr>[m
+[31m-                        <tr class="filters">[m
+[31m-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[31m-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[31m-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[31m-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[31m-                            <th><!-- Email: no search --></th>[m
+[31m-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[31m-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[31m-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[31m-                            <th><!-- Status: no search --></th>[m
+[31m-                            <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[31m-                            <th><!-- Actions column: keep empty to match header count --></th>[m
+[31m-                        </tr>[m
+[31m-                    </thead>[m
+[31m-                    <tbody>[m
+[31m-                        @forelse($tickets as $ticket)[m
+[31m-                            @php[m
+[31m-                                $status = strtolower(trim($ticket->status));[m
+[31m-                            @endphp[m
+[31m-                            <tr>[m
+[31m-                                <td>[m
+[31m-                                    <strong>{{ $ticket->fullName }}</strong>[m
+[31m-                                </td>[m
+[31m-                                <td>{{ $ticket->position }}</td>[m
+[31m-                                <td>{{ $ticket->designation }}</td>[m
+[31m-                                <td>[m
+[31m-                                    <a href="tel:{{ $ticket->contactNumber }}" class="text-decoration-none">[m
+[31m-                                        <i class="fas fa-phone-alt mr-1"></i>{{ $ticket->contactNumber }}[m
+[31m-                                    </a>[m
+[31m-                                </td>[m
+[31m-                                <td>[m
+[31m-                                    <a href="mailto:{{ $ticket->emailAddress }}" class="text-decoration-none">[m
+[31m-                                        <i class="fas fa-envelope mr-1"></i>{{ $ticket->emailAddress }}[m
+[31m-                                    </a>[m
+[31m-                                </td>[m
+[31m-                                <td>{{ $ticket->reqOffice }}</td>[m
+[31m-                                <td>[m
+[31m-                                    <code>{{ $ticket->reference }}</code>[m
+[31m-                                </td>[m
+[31m-                                <td>{{ $ticket->authority }}</td>[m
+[31m-                                <td>[m
+[31m-                                    @if($status === 'no action')[m
+[31m-                                        <span class="badge badge-danger">[m
+[31m-                                            <i class="fas fa-times mr-1"></i>No Action[m
+[31m-                                        </span>[m
+[31m-                                    @elseif($status === 'in progress')[m
+[31m-                                        <span class="badge badge-warning">[m
+[31m-                                            <i class="fas fa-clock mr-1"></i>In Progress[m
+[31m-                                        </span>[m
+[31m-                                    @elseif(in_array($status, ['complete', 'completed', 'closed']))[m
+[31m-                                        <span class="badge badge-success">[m
+[31m-                                            <i class="fas fa-check mr-1"></i>Completed[m
+[31m-                                        </span>[m
+[31m-                                    @else[m
+[31m-                                        <span class="badge badge-secondary">[m
+[31m-                                            <i class="fas fa-question mr-1"></i>{{ $ticket->status }}[m
+[31m-                                        </span>[m
+[31m-                                    @endif[m
+[31m-                                </td>[m
+[31m-                                <td>[m
+[31m-                                    {{ $ticket->unitResponsible }}[m
+[31m-                                </td>[m
+[31m-                                <td>[m
+[31m-                                    <div class="btn-group" role="group">[m
+[31m-                                        <a href="{{ route('ticket.edit', $ticket->id) }}" [m
+[31m-                                           class="btn btn-sm btn-warning" [m
+[31m-                                           title="Edit Ticket">[m
+[31m-                                            <i class="fas fa-edit"></i>[m
+[31m-                                        </a>[m
+[31m-                                        <button type="button" [m
+[31m-                                                class="btn btn-sm btn-info" [m
+[31m-                                                data-toggle="modal" [m
+[31m-                                                data-target="#viewModal{{ $ticket->id }}"[m
+[31m-                                                title="View Details">[m
+[31m-                                            <i class="fas fa-eye"></i>[m
+[31m-                                        </button>[m
+[31m-                                        <form action="{{ route('ticket.destroy', $ticket->id) }}" [m
+[31m-                                              method="POST" [m
+[31m-                                              style="display:inline;" [m
+[31m-                                              onsubmit="return confirm('Are you sure you want to delete this ticket?')">[m
+[31m-                                            @csrf[m
+[31m-                                            @method('DELETE')[m
+[31m-                                            <button type="submit" [m
+[31m-                                                    class="btn btn-sm btn-danger" [m
+[31m-                                                    title="Delete Ticket">[m
+[31m-                                                <i class="fas fa-trash"></i>[m
+[31m-                                            </button>[m
+[31m-                                        </form>[m
+[31m-                                    </div>[m
+[31m-                                </td>[m
+[31m-                            </tr>[m
+[32m+[m[32m                    <!-- Responsive Table -->[m
+[32m+[m[32m                    <div class="table-responsive">[m
+[32m+[m[32m                        <table id="tickets-table" class="table table-bordered table-striped table-hover">[m
+[32m+[m[32m                            <thead>[m
+[32m+[m[32m                                <tr>[m
+[32m+[m[32m                                    <th><i class="fas fa-user mr-1"></i>Full Name</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-briefcase mr-1"></i>Position</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-id-badge mr-1"></i>Designation</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-phone mr-1"></i>Contact</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-envelope mr-1"></i>Email</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-building mr-1"></i>Office</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-hashtag mr-1"></i>Reference</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-gavel mr-1"></i>Authority</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-flag mr-1"></i>Status</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-users mr-1"></i>Unit Responsible</th>[m
+[32m+[m[32m                                    <th><i class="fas fa-cogs mr-1"></i>Actions</th>[m
+[32m+[m[32m                                </tr>[m
+[32m+[m[32m                                <tr class="filters">[m
+[32m+[m[32m                                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[32m+[m[32m                                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[32m+[m[32m                                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[32m+[m[32m                                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[32m+[m[32m                                    <th><!-- Email: no search --></th>[m
+[32m+[m[32m                                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[32m+[m[32m                                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[32m+[m[32m                                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[32m+[m[32m                                    <th><!-- Status: no search --></th>[m
+[32m+[m[32m                                    <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>[m
+[32m+[m[32m                                    <th><!-- Actions column: keep empty to match header count --></th>[m
+[32m+[m[32m                                </tr>[m
+[32m+[m[32m                            </thead>[m
+[32m+[m[32m                            <tbody>[m
+[32m+[m[32m                                @forelse($tickets as $ticket)[m
+[32m+[m[32m                                    @php[m
+[32m+[m[32m                                        $status = strtolower(trim($ticket->status));[m
+[32m+[m[32m                                    @endphp[m
+[32m+[m[32m                                    <tr>[m
+[32m+[m[32m                                        <td>[m
+[32m+[m[32m                                            <strong>{{ $ticket->fullName }}</strong>[m
+[32m+[m[32m                                        </td>[m
+[32m+[m[32m                                        <td>{{ $ticket->position }}</td>[m
+[32m+[m[32m                                        <td>{{ $ticket->designation }}</td>[m
+[32m+[m[32m                                        <td>[m
+[32m+[m[32m                                            <a href="tel:{{ $ticket->contactNumber }}" class="text-decoration-none">[m
+[32m+[m[32m                                                <i class="fas fa-phone-alt mr-1"></i>{{ $ticket->contactNumber }}[m
+[32m+[m[32m                                            </a>[m
+[32m+[m[32m                                        </td>[m
+[32m+[m[32m                                        <td>[m
+[32m+[m[32m                                            <a href="mailto:{{ $ticket->emailAddress }}" class="text-decoration-none">[m
+[32m+[m[32m                                                <i class="fas fa-envelope mr-1"></i>{{ $ticket->emailAddress }}[m
+[32m+[m[32m                                            </a>[m
+[32m+[m[32m                                        </td>[m
+[32m+[m[32m                                        <td>{{ $ticket->reqOffice }}</td>[m
+[32m+[m[32m                                        <td>[m
+[32m+[m[32m                                            <code>{{ $ticket->reference }}</code>[m
+[32m+[m[32m                                        </td>[m
+[32m+[m[32m                                        <td>{{ $ticket->authority }}</td>[m
+[32m+[m[32m                                        <td>[m
+[32m+[m[32m                                            @if($status === 'no action')[m
+[32m+[m[32m                                                <span class="badge badge-danger">[m
+[32m+[m[32m                                                    <i class="fas fa-times mr-1"></i>No Action[m
+[32m+[m[32m                                                </span>[m
+[32m+[m[32m                                            @elseif($status === 'in progress')[m
+[32m+[m[32m                                                <span class="badge badge-warning">[m
+[32m+[m[32m                                                    <i class="fas fa-clock mr-1"></i>In Progress[m
+[32m+[m[32m                                                </span>[m
+[32m+[m[32m                                            @elseif(in_array($status, ['complete', 'completed', 'closed']))[m
+[32m+[m[32m                                                <span class="badge badge-success">[m
+[32m+[m[32m                                                    <i class="fas fa-check mr-1"></i>Completed[m
+[32m+[m[32m                                                </span>[m
+[32m+[m[32m                                            @else[m
+[32m+[m[32m                                                <span class="badge badge-secondary">[m
+[32m+[m[32m                                                    <i class="fas fa-question mr-1"></i>{{ $ticket->status }}[m
+[32m+[m[32m                                                </span>[m
+[32m+[m[32m                                            @endif[m
+[32m+[m[32m                                        </td>[m
+[32m+[m[32m                                        <td>[m
+[32m+[m[32m                                            {{ $ticket->unitResponsible }}[m
+[32m+[m[32m                                        </td>[m
+[32m+[m[32m                                        <td>[m
+[32m+[m[32m                                            <div class="btn-group" role="group">[m
+[32m+[m[32m                                                <a href="{{ route('ticket.edit', $ticket->id) }}"[m[41m [m
+[32m+[m[32m                                                class="btn btn-sm btn-warning"[m[41m [m
+[32m+[m[32m                                                title="Edit Ticket">[m
+[32m+[m[32m                                                    <i class="fas fa-edit"></i>[m
+[32m+[m[32m                                                </a>[m
+[32m+[m[32m                                                <button type="button"[m[41m [m
+[32m+[m[32m                                                        class="btn btn-sm btn-info"[m[41m [m
+[32m+[m[32m                                                        data-toggle="modal"[m[41m [m
+[32m+[m[32m                                                        data-target="#viewModal{{ $ticket->id }}"[m
+[32m+[m[32m                                                        title="View Details">[m
+[32m+[m[32m                                                    <i class="fas fa-eye"></i>[m
+[32m+[m[32m                                                </button>[m
+[32m+[m[32m                                                <form action="{{ route('ticket.destroy', $ticket->id) }}"[m[41m [m
+[32m+[m[32m                                                    method="POST"[m[41m [m
+[32m+[m[32m                                                    style="display:inline;"[m[41m [m
+[32m+[m[32m                                                    onsubmit="return confirm('Are you sure you want to delete this ticket?')">[m
+[32m+[m[32m                                                    @csrf[m
+[32m+[m[32m                                                    @method('DELETE')[m
+[32m+[m[32m                                                    <button type="submit"[m[41m [m
+[32m+[m[32m                                                            class="btn btn-sm btn-danger"[m[41m [m
+[32m+[m[32m                                                            title="Delete Ticket">[m
+[32m+[m[32m                                                        <i class="fas fa-trash"></i>[m
+[32m+[m[32m                                                    </button>[m
+[32m+[m[32m                                                </form>[m
+[32m+[m[32m                                            </div>[m
+[32m+[m[32m                                        </td>[m
+[32m+[m[32m                                    </tr>[m
+ [m
+[31m-                            <!-- View Modal -->[m
+[31m-                            <div class="modal fade" id="viewModal{{ $ticket->id }}" tabindex="-1" role="dialog">[m
+[31m-                                <div class="modal-dialog modal-lg" role="document">[m
+[31m-                                    <div class="modal-content">[m
+[31m-                                        <div class="modal-header bg-info">[m
+[31m-                                            <h5 class="modal-title">[m
+[31m-                                                <i class="fas fa-ticket-alt mr-2"></i>Ticket Details[m
+[31m-                                            </h5>[m
+[31m-                                            <button type="button" class="close text-white" data-dismiss="modal">[m
+[31m-                                                <span>&times;</span>[m
+[31m-                                            </button>[m
+[31m-                                        </div>[m
+[31m-                                        <div class="modal-body">[m
+[31m-                                            <div class="row">[m
+[31m-                                                <div class="col-md-6">[m
+[31m-                                                    <dl class="row">[m
+[31m-                                                        <dt class="col-sm-4">Full Name:</dt>[m
+[31m-                                                        <dd class="col-sm-8">{{ $ticket->fullName }}</dd>[m
+[31m-                                                        <dt class="col-sm-4">Position:</dt>[m
+[31m-                                                        <dd class="col-sm-8">{{ $ticket->position }}</dd>[m
+[31m-                                                        <dt class="col-sm-4">Designation:</dt>[m
+[31m-                                                        <dd class="col-sm-8">{{ $ticket->designation }}</dd>[m
+[31m-                                                        <dt class="col-sm-4">Contact:</dt>[m
+[31m-                                                        <dd class="col-sm-8">{{ $ticket->contactNumber }}</dd>[m
+[31m-                                                        <dt class="col-sm-4">Email:</dt>[m
+[31m-                                                        <dd class="col-sm-8">{{ $ticket->emailAddress }}</dd>[m
+[31m-                                                    </dl>[m
+[32m+[m[32m                                    <!-- View Modal -->[m
+[32m+[m[32m                                    <div class="modal fade" id="viewModal{{ $ticket->id }}" tabindex="-1" role="dialog">[m
+[32m+[m[32m                                        <div class="modal-dialog modal-lg" role="document">[m
+[32m+[m[32m                                            <div class="modal-content">[m
+[32m+[m[32m                                                <div class="modal-header bg-info">[m
+[32m+[m[32m                                                    <h5 class="modal-title">[m
+[32m+[m[32m                                                        <i class="fas fa-ticket-alt mr-2"></i>Ticket Details[m
+[32m+[m[32m                                                    </h5>[m
+[32m+[m[32m                                                    <button type="button" class="close text-white" data-dismiss="modal">[m
+[32m+[m[32m                                                        <span>&times;</span>[m
+[32m+[m[32m                                                    </button>[m
+                                                 </div>[m
+[31m-                                                <div class="col-md-6">[m
+[31m-                                                    <dl class="row">[m
+[31m-                                                        <dt class="col-sm-4">Office:</dt>[m
+[31m-                                                        <dd class="col-sm-8">{{ $ticket->reqOffice }}</dd>[m
+[31m-                                                        <dt class="col-sm-4">Reference:</dt>[m
+[31m-                                                        <dd class="col-sm-8"><code>{{ $ticket->reference }}</code></dd>[m
+[31m-                                                        <dt class="col-sm-4">Authority:</dt>[m
+[31m-                                                        <dd class="col-sm-8">{{ $ticket->authority }}</dd>[m
+[31m-                                                        <dt class="col-sm-4">Status:</dt>[m
+[31m-                                                        <dd class="col-sm-8">[m
+[31m-                                                            @if($status === 'no action')[m
+[31m-                                                                <span class="badge badge-danger">No Action</span>[m
+[31m-                                                            @elseif($status === 'in progress')[m
+[31m-                                                                <span class="badge badge-warning">In Progress</span>[m
+[31m-                                                            @elseif(in_array($status, ['complete', 'completed', 'closed']))[m
+[31m-                                                                <span class="badge badge-success">Completed</span>[m
+[31m-                                                            @else[m
+[31m-                                                                <span class="badge badge-secondary">{{ $ticket->status }}</span>[m
+[31m-                                                            @endif[m
+[31m-                                                        </dd>[m
+[31m-                                                        <dt class="col-sm-4">Unit Responsible:</dt>[m
+[31m-                                                        <dd class="col-sm-8">{{ $ticket->unitResponsible }}</dd>[m
+[31m-                                                    </dl>[m
+[32m+[m[32m                                                <div class="modal-body">[m
+[32m+[m[32m                                                    <div class="row">[m
+[32m+[m[32m                                                        <div class="col-md-6">[m
+[32m+[m[32m                                                            <dl class="row">[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Full Name:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">{{ $ticket->fullName }}</dd>[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Position:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">{{ $ticket->position }}</dd>[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Designation:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">{{ $ticket->designation }}</dd>[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Contact:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">{{ $ticket->contactNumber }}</dd>[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Email:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">{{ $ticket->emailAddress }}</dd>[m
+[32m+[m[32m                                                            </dl>[m
+[32m+[m[32m                                                        </div>[m
+[32m+[m[32m                                                        <div class="col-md-6">[m
+[32m+[m[32m                                                            <dl class="row">[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Office:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">{{ $ticket->reqOffice }}</dd>[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Reference:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8"><code>{{ $ticket->reference }}</code></dd>[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Authority:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">{{ $ticket->authority }}</dd>[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Status:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">[m
+[32m+[m[32m                                                                    @if($status === 'no action')[m
+[32m+[m[32m                                                                        <span class="badge badge-danger">No Action</span>[m
+[32m+[m[32m                                                                    @elseif($status === 'in progress')[m
+[32m+[m[32m                                                                        <span class="badge badge-warning">In Progress</span>[m
+[32m+[m[32m                                                                    @elseif(in_array($status, ['complete', 'completed', 'closed']))[m
+[32m+[m[32m                                                                        <span class="badge badge-success">Completed</span>[m
+[32m+[m[32m                                                                    @else[m
+[32m+[m[32m                                                                        <span class="badge badge-secondary">{{ $ticket->status }}</span>[m
+[32m+[m[32m                                                                    @endif[m
+[32m+[m[32m                                                                </dd>[m
+[32m+[m[32m                                                                <dt class="col-sm-4">Unit Responsible:</dt>[m
+[32m+[m[32m                                                                <dd class="col-sm-8">{{ $ticket->unitResponsible }}</dd>[m
+[32m+[m[32m                                                            </dl>[m
+[32m+[m[32m                                                        </div>[m
+[32m+[m[32m                                                    </div>[m
+[32m+[m[32m                                                </div>[m
+[32m+[m[32m                                                <div class="modal-footer">[m
+[32m+[m[32m                                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>[m
+[32m+[m[32m                                                    <a href="{{ route('ticket.edit', $ticket->id) }}" class="btn btn-warning">[m
+[32m+[m[32m                                                        <i class="fas fa-edit mr-1"></i>Edit[m
+[32m+[m[32m                                                    </a>[m
+                                                 </div>[m
+                                             </div>[m
+                                         </div>[m
+[31m-                                        <div class="modal-footer">[m
+[31m-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>[m
+[31m-                                            <a href="{{ route('ticket.edit', $ticket->id) }}" class="btn btn-warning">[m
+[31m-                                                <i class="fas fa-edit mr-1"></i>Edit[m
+[31m-                                            </a>[m
+[31m-                                        </div>[m
+                                     </div>[m
+[31m-                                </div>[m
+[31m-                            </div>[m
+[31m-                        @empty[m
+[31m-                            <tr>[m
+[31m-                                <td colspan="11" class="text-center text-muted">[m
+[31m-                                    <i class="fas fa-inbox fa-3x mb-3"></i>[m
+[31m-                                    <p>No tickets found.</p>[m
+[31m-                                </td>[m
+[31m-                            </tr>[m
+[31m-                        @endforelse[m
+[31m-                    </tbody>[m
+[31m-                </table>[m
+[31m-            </div>[m
+[32m+[m[32m                                @empty[m
+[32m+[m[32m                                    <tr>[m
+[32m+[m[32m                                        <td colspan="11" class="text-center text-muted">[m
+[32m+[m[32m                                            <i class="fas fa-inbox fa-3x mb-3"></i>[m
+[32m+[m[32m                                            <p>No tickets found.</p>[m
+[32m+[m[32m                                        </td>[m
+[32m+[m[32m                                    </tr>[m
+[32m+[m[32m                                @endforelse[m
+[32m+[m[32m                            </tbody>[m
+[32m+[m[32m                        </table>[m
+[32m+[m[32m                    </div>[m
+ [m
+[31m-            <!-- Pagination -->[m
+[31m-            @if(method_exists($tickets, 'links'))[m
+[31m-                <div class="d-flex justify-content-center mt-4">[m
+[31m-                    {{ $tickets->links() }}[m
+[32m+[m[32m                    <!-- Pagination -->[m
+[32m+[m[32m                    @if(method_exists($tickets, 'links'))[m
+[32m+[m[32m                        <div class="d-flex justify-content-center mt-4">[m
+[32m+[m[32m                            {{ $tickets->links() }}[m
+[32m+[m[32m                        </div>[m
+[32m+[m[32m                    @endif[m
+                 </div>[m
+[31m-            @endif[m
+[32m+[m[32m            </div>[m
+         </div>[m
+[31m-    </div>[m
+[31m-</div>[m
+[31m-@endsection[m
+[31m-[m
+[31m-@section('css')[m
+[31m-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">[m
+[31m-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">[m
+[31m-    <style>[m
+[31m-        .small-box .icon {[m
+[31m-            top: 10px;[m
+[31m-            right: 10px;[m
+[31m-        }[m
+[31m-        .table-responsive {[m
+[31m-            min-height: 400px;[m
+[31m-        }[m
+[31m-        .filters input {[m
+[31m-            background-color: #f8f9fa;[m
+[31m-            border: 1px solid #dee2e6;[m
+[31m-        }[m
+[31m-        .btn-group .btn {[m
+[31m-            margin-right: 2px;[m
+[31m-        }[m
+[31m-        .btn-group .btn:last-child {[m
+[31m-            margin-right: 0;[m
+[31m-        }[m
+[31m-        .modal-header.bg-info {[m
+[31m-            color: white;[m
+[31m-        }[m
+[31m-        /* Row color classes removed as requested */[m
+[31m-        .dataTables_filter {[m
+[31m-            display: none;[m
+[31m-        }[m
+[31m-        .card-outline.card-primary {[m
+[31m-            border-top: 3px solid #007bff;[m
+[31m-        }[m
+[31m-        .badge {[m
+[31m-            font-size: 0.8rem;[m
+[31m-        }[m
+[31m-    </style>[m
+[31m-@endsection[m
+[31m-[m
+[31m-@section('js')[m
+[31m-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>[m
+[31m-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>[m
+[31m-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>[m
+[31m-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>[m
+[32m+[m[32m        @endsection[m
+ [m
+[31m-<script>[m
+[31m-$(document).ready(function() {[m
+[31m-    // Initialize DataTable[m
+[31m-    var table = $('#tickets-table').DataTable({[m
+[31m-        responsive: true,[m
+[31m-        autoWidth: false,[m
+[31m-        pageLength: 25,[m
+[31m-        order: [[0, 'asc']],[m
+[31m-        dom: 'Bfrtip',[m
+[31m-        buttons: [[m
+[31m-            {[m
+[31m-                extend: 'excel',[m
+[31m-                text: '<i class="fas fa-file-excel"></i> Excel',[m
+[31m-                className: 'btn btn-success btn-sm',[m
+[31m-                exportOptions: {[m
+[31m-                    columns: ':not(:last-child)'[m
+[32m+[m[32m        @section('css')[m
+[32m+[m[32m            <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">[m
+[32m+[m[32m            <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">[m
+[32m+[m[32m            <style>[m
+[32m+[m[32m                .small-box .icon {[m
+[32m+[m[32m                    top: 10px;[m
+[32m+[m[32m                    right: 10px;[m
+                 }[m
+[31m-            },[m
+[31m-            {[m
+[31m-                extend: 'pdf',[m
+[31m-                text: '<i class="fas fa-file-pdf"></i> PDF',[m
+[31m-                className: 'btn btn-danger btn-sm',[m
+[31m-                exportOptions: {[m
+[31m-                    columns: ':not(:last-child)'[m
+[32m+[m[32m                .table-responsive {[m
+[32m+[m[32m                    min-height: 400px;[m
+                 }[m
+[31m-            },[m
+[31m-            {[m
+[31m-                extend: 'print',[m
+[31m-                text: '<i class="fas fa-print"></i> Print',[m
+[31m-                className: 'btn btn-info btn-sm',[m
+[31m-                exportOptions: {[m
+[31m-                    columns: ':not(:last-child)'[m
+[32m+[m[32m                .filters input {[m
+[32m+[m[32m                    background-color: #f8f9fa;[m
+[32m+[m[32m                    border: 1px solid #dee2e6;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                .btn-group .btn {[m
+[32m+[m[32m                    margin-right: 2px;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                .btn-group .btn:last-child {[m
+[32m+[m[32m                    margin-right: 0;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                .modal-header.bg-info {[m
+[32m+[m[32m                    color: white;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                /* Row color classes removed as requested */[m
+[32m+[m[32m                .dataTables_filter {[m
+[32m+[m[32m                    display: none;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                .card-outline.card-primary {[m
+[32m+[m[32m                    border-top: 3px solid #007bff;[m
+[32m+[m[32m                }[m
+[32m+[m[32m                .badge {[m
+[32m+[m[32m                    font-size: 0.8rem;[m
+[32m+[m[32m                }[m
+[32m+[m[32m            </style>[m
+[32m+[m[32m        @endsection[m
+[32m+[m
+[32m+[m[32m        @section('js')[m
+[32m+[m[32m        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>[m
+[32m+[m[32m        <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>[m
+[32m+[m[32m        <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>[m
+[32m+[m[32m        <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>[m
+[32m+[m[32m        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>[m
+[32m+[m[32m        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>[m
+[32m+[m[32m        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>[m
+[32m+[m[32m        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>[m
+[32m+[m[32m        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>[m
+[32m+[m[32m        <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>[m
+[32m+[m
+[32m+[m[32m        <script>[m
+[32m+[m[32m        $(document).ready(function() {[m
+[32m+[m[32m            // Initialize DataTable[m
+[32m+[m[32m            var table = $('#tickets-table').DataTable({[m
+[32m+[m[32m                responsive: true,[m
+[32m+[m[32m                autoWidth: false,[m
+[32m+[m[32m                pageLength: 25,[m
+[32m+[m[32m                order: [[0, 'asc']],[m
+[32m+[m[32m                dom: 'Bfrtip',[m
+[32m+[m[32m                buttons: [[m
+[32m+[m[32m                    {[m
+[32m+[m[32m                        extend: 'excel',[m
+[32m+[m[32m                        text: '<i class="fas fa-file-excel"></i> Excel',[m
+[32m+[m[32m                        className: 'btn btn-success btn-sm',[m
+[32m+[m[32m                        exportOptions: {[m
+[32m+[m[32m                            columns: ':not(:last-child)'[m
+[32m+[m[32m                        }[m
+[32m+[m[32m                    },[m
+[32m+[m[32m                    {[m
+[32m+[m[32m                        extend: 'pdf',[m
+[32m+[m[32m                        text: '<i class="fas fa-file-pdf"></i> PDF',[m
+[32m+[m[32m                        className: 'btn btn-danger btn-sm',[m
+[32m+[m[32m                        exportOptions: {[m
+[32m+[m[32m                            columns: ':not(:last-child)'[m
+[32m+[m[32m                        }[m
+[32m+[m[32m                    },[m
+[32m+[m[32m                    {[m
+[32m+[m[32m                        extend: 'print',[m
+[32m+[m[32m                        text: '<i class="fas fa-print"></i> Print',[m
+[32m+[m[32m                        className: 'btn btn-info btn-sm',[m
+[32m+[m[32m                        exportOptions: {[m
+[32m+[m[32m                            columns: ':not(:last-child)'[m
+[32m+[m[32m                        }[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                ],[m
+[32m+[m[32m                language: {[m
+[32m+[m[32m                    lengthMenu: "Show _MENU_ entries per page",[m
+[32m+[m[32m                    zeroRecords: "No matching records found",[m
+[32m+[m[32m                    info: "Showing _START_ to _END_ of _TOTAL_ entries",[m
+[32m+[m[32m                    infoEmpty: "Showing 0 to 0 of 0 entries",[m
+[32m+[m[32m                    infoFiltered: "(filtered from _MAX_ total entries)",[m
+[32m+[m[32m                    search: "Search:",[m
+[32m+[m[32m                    paginate: {[m
+[32m+[m[32m                        first: "First",[m
+[32m+[m[32m                        last: "Last",[m
+[32m+[m[32m                        next: "Next",[m
+[32m+[m[32m                        previous: "Previous"[m
+[32m+[m[32m                    }[m
+                 }[m
+[31m-            }[m
+[31m-        ],[m
+[31m-        language: {[m
+[31m-            lengthMenu: "Show _MENU_ entries per page",[m
+[31m-            zeroRecords: "No matching records found",[m
+[31m-            info: "Showing _START_ to _END_ of _TOTAL_ entries",[m
+[31m-            infoEmpty: "Showing 0 to 0 of 0 entries",[m
+[31m-            infoFiltered: "(filtered from _MAX_ total entries)",[m
+[31m-            search: "Search:",[m
+[31m-            paginate: {[m
+[31m-                first: "First",[m
+[31m-                last: "Last",[m
+[31m-                next: "Next",[m
+[31m-                previous: "Previous"[m
+[31m-            }[m
+[31m-        }[m
+[31m-    });[m
+[32m+[m[32m            });[m
+ [m
+[31m-    // Column search functionality[m
+[31m-    $('.column-search').on('keyup change', function() {[m
+[31m-        var colIdx = $(this).closest('th').index();[m
+[31m-        table.column(colIdx).search(this.value).draw();[m
+[31m-    });[m
+[32m+[m[32m            // Column search functionality[m
+[32m+[m[32m            $('.column-search').on('keyup change', function() {[m
+[32m+[m[32m                var colIdx = $(this).closest('th').index();[m
+[32m+[m[32m                table.column(colIdx).search(this.value).draw();[m
+[32m+[m[32m            });[m
+ [m
+[31m-    // Global search[m
+[31m-    $('#global-search').on('keyup', function() {[m
+[31m-        table.search(this.value).draw();[m
+[31m-    });[m
+[32m+[m[32m            // Global search[m
+[32m+[m[32m            $('#global-search').on('keyup', function() {[m
+[32m+[m[32m                table.search(this.value).draw();[m
+[32m+[m[32m            });[m
+ [m
+[31m-    // Status filter[m
+[31m-    $('#status-filter').on('change', function() {[m
+[31m-        var statusValue = this.value;[m
+[31m-        table.column(8).search(statusValue).draw();[m
+[31m-    });[m
+[32m+[m[32m            // Status filter[m
+[32m+[m[32m            $('#status-filter').on('change', function() {[m
+[32m+[m[32m                var statusValue = this.value;[m
+[32m+[m[32m                table.column(8).search(statusValue).draw();[m
+[32m+[m[32m            });[m
+ [m
+[31m-    // Clear all filters[m
+[31m-    $('#clear-filters').on('click', function() {[m
+[31m-        $('.column-search').val('');[m
+[31m-        $('#global-search').val('');[m
+[31m-        $('#status-filter').val('');[m
+[31m-        table.search('').columns().search('').draw();[m
+[31m-    });[m
+[32m+[m[32m            // Clear all filters[m
+[32m+[m[32m            $('#clear-filters').on('click', function() {[m
+[32m+[m[32m                $('.column-search').val('');[m
+[32m+[m[32m                $('#global-search').val('');[m
+[32m+[m[32m                $('#status-filter').val('');[m
+[32m+[m[32m                table.search('').columns().search('').draw();[m
+[32m+[m[32m            });[m
+ [m
+[31m-    // Auto-dismiss alerts[m
+[31m-    setTimeout(function() {[m
+[31m-        $('.alert').fadeOut('slow');[m
+[31m-    }, 5000);[m
+[31m-});[m
+[31m-</script>[m
+[31m-@endsection[m
+\ No newline at end of file[m
+[32m+[m[32m            // Auto-dismiss alerts[m
+[32m+[m[32m            setTimeout(function() {[m
+[32m+[m[32m                $('.alert').fadeOut('slow');[m
+[32m+[m[32m            }, 5000);[m
+[32m+[m[32m        });[m
+[32m+[m[32m        </script>[m
+[32m+[m[32m        @endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/password/edit.blade.php b/resources/views/password/edit.blade.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..49c4af5[m
+[1m--- /dev/null[m
+[1m+++ b/resources/views/password/edit.blade.php[m
+[36m@@ -0,0 +1,62 @@[m
+[32m+[m[32m@extends('layouts.app')[m
+[32m+[m
+[32m+[m[32m@section('content')[m
+[32m+[m[32m<div class="container">[m
+[32m+[m[32m    <div class="row justify-content-center">[m
+[32m+[m[32m        <div class="col-md-8">[m
+[32m+[m[32m            <div class="card">[m
+[32m+[m[32m                <div class="card-header">{{ __('Change Password') }}</div>[m
+[32m+[m
+[32m+[m[32m                <div class="card-body">[m
+[32m+[m[32m                    @if (session('success'))[m
+[32m+[m[32m                        <div class="alert alert-success" role="alert">[m
+[32m+[m[32m                            {{ session('success') }}[m
+[32m+[m[32m                        </div>[m
+[32m+[m[32m                    @endif[m
+[32m+[m
+[32m+[m[32m                    <form method="POST" action="{{ route('password.update') }}">[m
+[32m+[m[32m                        @csrf[m
+[32m+[m
+[32m+[m[32m                        <div class="mb-3">[m
+[32m+[m[32m                            <label for="current_password" class="form-label">{{ __('Current Password') }}</label>[m
+[32m+[m[32m                            <input id="current_password" type="password"[m[41m [m
+[32m+[m[32m                                   class="form-control @error('current_password') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                                   name="current_password" required autocomplete="current-password">[m
+[32m+[m[32m                            @error('current_password')[m
+[32m+[m[32m                                <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                                    <strong>{{ $message }}</strong>[m
+[32m+[m[32m                                </span>[m
+[32m+[m[32m                            @enderror[m
+[32m+[m[32m                        </div>[m
+[32m+[m
+[32m+[m[32m                        <div class="mb-3">[m
+[32m+[m[32m                            <label for="new_password" class="form-label">{{ __('New Password') }}</label>[m
+[32m+[m[32m                            <input id="new_password" type="password"[m[41m [m
+[32m+[m[32m                                   class="form-control @error('new_password') is-invalid @enderror"[m[41m [m
+[32m+[m[32m                                   name="new_password" required autocomplete="new-password">[m
+[32m+[m[32m                            @error('new_password')[m
+[32m+[m[32m                                <span class="invalid-feedback" role="alert">[m
+[32m+[m[32m                                    <strong>{{ $message }}</strong>[m
+[32m+[m[32m                                </span>[m
+[32m+[m[32m                            @enderror[m
+[32m+[m[32m                        </div>[m
+[32m+[m
+[32m+[m[32m                        <div class="mb-3">[m
+[32m+[m[32m                            <label for="new_password_confirmation" class="form-label">{{ __('Confirm New Password') }}</label>[m
+[32m+[m[32m                            <input id="new_password_confirmation" type="password"[m[41m [m
+[32m+[m[32m                                   class="form-control"[m[41m [m
+[32m+[m[32m                                   name="new_password_confirmation" required autocomplete="new-password">[m
+[32m+[m[32m                        </div>[m
+[32m+[m
+[32m+[m[32m                        <div class="d-grid">[m
+[32m+[m[32m                            <button type="submit" class="btn btn-primary">[m
+[32m+[m[32m                                {{ __('Change Password') }}[m
+[32m+[m[32m                            </button>[m
+[32m+[m[32m                        </div>[m
+[32m+[m[32m                    </form>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m</div>[m
+[32m+[m[32m@endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/position/create.blade.php b/resources/views/position/create.blade.php[m
+[1mdeleted file mode 100644[m
+[1mindex cbfee07..0000000[m
+[1m--- a/resources/views/position/create.blade.php[m
+[1m+++ /dev/null[m
+[36m@@ -1,91 +0,0 @@[m
+[31m-@extends('adminlte::page')[m
+[31m-[m
+[31m-@section('title', 'Add Position')[m
+[31m-[m
+[31m-@section('content_header')[m
+[31m-    <div class="row mb-2">[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <h1>Add Position</h1>[m
+[31m-        </div>[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <ol class="breadcrumb float-sm-right">[m
+[31m-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>[m
+[31m-                <li class="breadcrumb-item"><a href="{{ route('position.index') }}">Positions</a></li>[m
+[31m-                <li class="breadcrumb-item active">Add</li>[m
+[31m-            </ol>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('content')[m
+[31m-    <div class="row justify-content-center">[m
+[31m-        <div class="col-md-8">[m
+[31m-            <div class="card card-primary card-outline shadow-sm">[m
+[31m-                <div class="card-header bg-white border-bottom-0 d-flex align-items-center" style="padding-bottom: 0.5rem;">[m
+[31m-                    <h3 class="card-title mb-0 font-weight-bold text-primary" style="font-size: 1.25rem;">[m
+[31m-                        <i class="fas fa-plus mr-2 text-primary"></i>Add Position[m
+[31m-                    </h3>[m
+[31m-                </div>[m
+[31m-                <hr class="my-0">[m
+[31m-                <form method="POST" action="{{ route('position.store') }}">[m
+[31m-                    @csrf[m
+[31m-                    <div class="card-body">[m
+[31m-                        @if ($errors->any())[m
+[31m-                            <div class="alert alert-danger alert-dismissible">[m
+[31m-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>[m
+[31m-                                <h5><i class="icon fas fa-ban"></i> Error!</h5>[m
+[31m-                                <ul class="mb-0">[m
+[31m-                                    @foreach ($errors->all() as $error)[m
+[31m-                                        <li>{{ $error }}</li>[m
+[31m-                                    @endforeach[m
+[31m-                                </ul>[m
+[31m-                            </div>[m
+[31m-                        @endif[m
+[31m-                        <div class="form-group">[m
+[31m-                            <label for="name">Position Name <span class="text-danger">*</span></label>[m
+[31m-                            <div class="input-group">[m
+[31m-                                <div class="input-group-prepend">[m
+[31m-                                    <span class="input-group-text"><i class="fas fa-briefcase"></i></span>[m
+[31m-                                </div>[m
+[31m-                                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" placeholder="Enter position name" required>[m
+[31m-                                @error('name')[m
+[31m-                                    <span class="invalid-feedback">{{ $message }}</span>[m
+[31m-                                @enderror[m
+[31m-                            </div>[m
+[31m-                        </div>[m
+[31m-                    </div>[m
+[31m-                    <div class="card-footer bg-light">[m
+[31m-                        <div class="d-flex justify-content-end">[m
+[31m-                            <a href="{{ route('position.index') }}" class="btn btn-danger mr-2">[m
+[31m-                                <i class="fas fa-times"></i> Cancel[m
+[31m-                            </a>[m
+[31m-                            <button type="submit" class="btn btn-primary">[m
+[31m-                                <i class="fas fa-save"></i> Create[m
+[31m-                            </button>[m
+[31m-                        </div>[m
+[31m-                    </div>[m
+[31m-                </form>[m
+[31m-            </div>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('css')[m
+[31m-    <style>[m
+[31m-        .card-primary.card-outline {[m
+[31m-            border-top: 3px solid #007bff;[m
+[31m-        }[m
+[31m-        .input-group-text {[m
+[31m-            background-color: #f8f9fa;[m
+[31m-            border-color: #ced4da;[m
+[31m-        }[m
+[31m-        .form-group label {[m
+[31m-            font-weight: 600;[m
+[31m-            color: #495057;[m
+[31m-        }[m
+[31m-        .card-footer {[m
+[31m-            background-color: #f8f9fa;[m
+[31m-            border-top: 1px solid #dee2e6;[m
+[31m-        }[m
+[31m-    </style>[m
+[31m-@stop[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/position/edit.blade.php b/resources/views/position/edit.blade.php[m
+[1mdeleted file mode 100644[m
+[1mindex f86b908..0000000[m
+[1m--- a/resources/views/position/edit.blade.php[m
+[1m+++ /dev/null[m
+[36m@@ -1,122 +0,0 @@[m
+[31m-@extends('adminlte::page')[m
+[31m-[m
+[31m-@section('title', 'Edit Position')[m
+[31m-[m
+[31m-@section('content_header')[m
+[31m-    <div class="row mb-2">[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <h1>Edit Position</h1>[m
+[31m-        </div>[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <ol class="breadcrumb float-sm-right">[m
+[31m-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>[m
+[31m-                <li class="breadcrumb-item"><a href="{{ route('position.index') }}">Positions</a></li>[m
+[31m-                <li class="breadcrumb-item active">Edit</li>[m
+[31m-            </ol>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('content')[m
+[31m-    <div class="row justify-content-center">[m
+[31m-        <div class="col-md-8">[m
+[31m-            <div class="card card-primary card-outline shadow-sm">[m
+[31m-                <div class="card-header bg-white border-bottom-0 d-flex align-items-center" style="padding-bottom: 0.5rem;">[m
+[31m-                    <h3 class="card-title mb-0 font-weight-bold text-primary" style="font-size: 1.25rem;">[m
+[31m-                        <i class="fas fa-edit mr-2 text-primary"></i>Edit Position[m
+[31m-                    </h3>[m
+[31m-                </div>[m
+[31m-                <hr class="my-0">[m
+[31m-                <form action="{{ route('position.update', $position->id) }}" method="POST" autocomplete="off">[m
+[31m-                    @csrf[m
+[31m-                    @method('PUT')[m
+[31m-                    <div class="card-body">[m
+[31m-                        @if ($errors->any())[m
+[31m-                            <div class="alert alert-danger alert-dismissible">[m
+[31m-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>[m
+[31m-                                <h5><i class="icon fas fa-ban"></i> Error!</h5>[m
+[31m-                                <ul class="mb-0">[m
+[31m-                                    @foreach ($errors->all() as $error)[m
+[31m-                                        <li>{{ $error }}</li>[m
+[31m-                                    @endforeach[m
+[31m-                                </ul>[m
+[31m-                            </div>[m
+[31m-                        @endif[m
+[31m-                        <div class="form-group">[m
+[31m-                            <label for="name">Position Name <span class="text-danger">*</span></label>[m
+[31m-                            <div class="input-group">[m
+[31m-                                <div class="input-group-prepend">[m
+[31m-                                    <span class="input-group-text"><i class="fas fa-briefcase"></i></span>[m
+[31m-                                </div>[m
+[31m-                                <input type="text"[m
+[31m-                                       name="name"[m
+[31m-                                       id="name"[m
+[31m-                                       class="form-control @error('name') is-invalid @enderror"[m
+[31m-                                       value="{{ old('name', $position->name) }}"[m
+[31m-                                       data-original-value="{{ old('name', $position->name) }}"[m
+[31m-                                       placeholder="Enter Position Name"[m
+[31m-                                       maxlength="255"[m
+[31m-                                       required>[m
+[31m-                                @error('name')[m
+[31m-                                    <span class="invalid-feedback">{{ $message }}</span>[m
+[31m-                                @enderror[m
+[31m-                            </div>[m
+[31m-                        </div>[m
+[31m-                    </div>[m
+[31m-                    <div class="card-footer bg-light">[m
+[31m-                        <div class="d-flex justify-content-end">[m
+[31m-                            <a href="{{ route('position.index') }}" class="btn btn-danger mr-2">[m
+[31m-                                <i class="fas fa-times"></i> Cancel[m
+[31m-                            </a>[m
+[31m-                            <button type="submit" class="btn btn-primary">[m
+[31m-                                <i class="fas fa-save"></i> Update Position[m
+[31m-                            </button>[m
+[31m-                        </div>[m
+[31m-                    </div>[m
+[31m-                </form>[m
+[31m-            </div>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('css')[m
+[31m-    <style>[m
+[31m-        .card-primary.card-outline {[m
+[31m-            border-top: 3px solid #007bff;[m
+[31m-        }[m
+[31m-        .input-group-text {[m
+[31m-            background-color: #f8f9fa;[m
+[31m-            border-color: #ced4da;[m
+[31m-        }[m
+[31m-        .form-group label {[m
+[31m-            font-weight: 600;[m
+[31m-            color: #495057;[m
+[31m-        }[m
+[31m-        .card-footer {[m
+[31m-            background-color: #f8f9fa;[m
+[31m-            border-top: 1px solid #dee2e6;[m
+[31m-        }[m
+[31m-    </style>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('js')[m
+[31m-<script>[m
+[31m-    // Auto-dismiss alerts[m
+[31m-    setTimeout(function() {[m
+[31m-        $('.alert').fadeOut('slow');[m
+[31m-    }, 5000);[m
+[31m-[m
+[31m-    // Clear textbox on focus if value matches original[m
+[31m-    document.addEventListener('DOMContentLoaded', function() {[m
+[31m-        var nameInput = document.getElementById('name');[m
+[31m-        if (nameInput) {[m
+[31m-            nameInput.addEventListener('focus', function() {[m
+[31m-                var original = this.getAttribute('data-original-value');[m
+[31m-                if (this.value === original) {[m
+[31m-                    this.value = '';[m
+[31m-                }[m
+[31m-            });[m
+[31m-        }[m
+[31m-    });[m
+[31m-</script>[m
+[31m-@stop[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/position/index.blade.php b/resources/views/position/index.blade.php[m
+[1mdeleted file mode 100644[m
+[1mindex 296ff7c..0000000[m
+[1m--- a/resources/views/position/index.blade.php[m
+[1m+++ /dev/null[m
+[36m@@ -1,220 +0,0 @@[m
+[31m-@extends('adminlte::page')[m
+[31m-[m
+[31m-@section('title', 'Positions')[m
+[31m-[m
+[31m-@section('content_header')[m
+[31m-    <div class="row mb-2">[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <h1 class="m-0">Positions</h1>[m
+[31m-        </div>[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <ol class="breadcrumb float-sm-right">[m
+[31m-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>[m
+[31m-                <li class="breadcrumb-item active">Positions</li>[m
+[31m-            </ol>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('content')[m
+[31m-<div class="container-fluid px-0">[m
+[31m-    @if(session('success'))[m
+[31m-        <div class="alert alert-success alert-dismissible fade show" role="alert">[m
+[31m-            <i class="fas fa-check-circle mr-2"></i>[m
+[31m-            {{ session('success') }}[m
+[31m-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">[m
+[31m-                <span aria-hidden="true">&times;</span>[m
+[31m-            </button>[m
+[31m-        </div>[m
+[31m-    @endif[m
+[31m-[m
+[31m-    <div class="card card-primary card-outline shadow-sm h-100" style="min-height: 400px; display: flex; flex-direction: column;">[m
+[31m-        <div class="card-header bg-white border-bottom-0" style="padding-bottom: 0.5rem;">[m
+[31m-            <div class="d-flex justify-content-between align-items-center w-100">[m
+[31m-                <h3 class="card-title mb-0 font-weight-bold text-primary" style="font-size: 1.25rem;">[m
+[31m-                    <i class="fas fa-list mr-1"></i> Position List[m
+[31m-                </h3>[m
+[31m-                <a href="{{ route('position.create') }}" class="btn btn-primary btn-sm ml-auto">[m
+[31m-                    <i class="fas fa-plus mr-1"></i> Add Position[m
+[31m-                </a>[m
+[31m-            </div>[m
+[31m-        </div>[m
+[31m-        <hr class="my-0">[m
+[31m-        <div class="card-body p-0 d-flex flex-column flex-grow-1 h-100" style="min-height:0;">[m
+[31m-            <!-- Search Section -->[m
+[31m-            <div class="row m-0 p-3 pb-0">[m
+[31m-                <div class="col-md-6 px-1">[m
+[31m-                    <div class="form-group mb-2">[m
+[31m-                        <label for="global-search" class="mb-1">Global Search:</label>[m
+[31m-                        <input type="text" id="global-search" class="form-control form-control-sm" placeholder="Search across all fields...">[m
+[31m-                    </div>[m
+[31m-                </div>[m
+[31m-                <div class="col-md-6 px-1">[m
+[31m-                    <!-- Intentionally left blank for alignment -->[m
+[31m-                </div>[m
+[31m-            </div>[m
+[31m-            <div class="flex-grow-1 d-flex flex-column px-3 pb-3" style="min-height:0; height:100%;">[m
+[31m-                <div class="d-flex flex-column flex-grow-1 h-100" style="height:100%; min-height:0;">[m
+[31m-                    <div class="mb-2" id="positions-table-controls"></div>[m
+[31m-                    <div class="table-responsive flex-grow-1" style="height:100%; min-height:0;">[m
+[31m-                        <table id="positions-table" class="table table-bordered table-striped table-hover mb-0 w-100" style="table-layout: auto;">[m
+[31m-                        <thead>[m
+[31m-                            <tr>[m
+[31m-                                <th style="width: 10%">#</th>[m
+[31m-                                <th>Position Name</th>[m
+[31m-                                <th>Description</th>[m
+[31m-                                <th style="width: 20%">Actions</th>[m
+[31m-                            </tr>[m
+[31m-                        </thead>[m
+[31m-                        <tbody>[m
+[31m-                            @forelse($positions as $position)[m
+[31m-                                <tr>[m
+[31m-                                    <td>{{ $loop->iteration }}</td>[m
+[31m-                                    <td>{{ $position->name }}</td>[m
+[31m-                                    <td>{{ $position->description }}</td>[m
+[31m-                                    <td class="text-center align-middle">[m
+[31m-                                        <div class="btn-group" role="group">[m
+[31m-                                            <a href="{{ route('position.edit', $position->id) }}" [m
+[31m-                                               class="btn btn-sm btn-warning" [m
+[31m-                                               title="Edit Position">[m
+[31m-                                                <i class="fas fa-edit"></i>[m
+[31m-                                            </a>[m
+[31m-                                            <form action="{{ route('position.destroy', $position->id) }}" [m
+[31m-                                                  method="POST" [m
+[31m-                                                  style="display:inline;" [m
+[31m-                                                  onsubmit="return confirm('Are you sure you want to delete this position?')">[m
+[31m-                                                @csrf[m
+[31m-                                                @method('DELETE')[m
+[31m-                                                <button type="submit" [m
+[31m-                                                        class="btn btn-sm btn-danger" [m
+[31m-                                                        title="Delete Position">[m
+[31m-                                                    <i class="fas fa-trash"></i>[m
+[31m-                                                </button>[m
+[31m-                                            </form>[m
+[31m-                                        </div>[m
+[31m-                                    </td>[m
+[31m-                                </tr>[m
+[31m-                            @empty[m
+[31m-                                <tr>[m
+[31m-                                    <td colspan="4" class="text-center text-muted">[m
+[31m-                                        <i class="fas fa-inbox fa-3x mb-3"></i>[m
+[31m-                                        <p>No positions found.</p>[m
+[31m-                                    </td>[m
+[31m-                                </tr>[m
+[31m-                            @endforelse[m
+[31m-                        </tbody>[m
+[31m-                    </table>[m
+[31m-                </div>[m
+[31m-            </div>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-</div>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('css')[m
+[31m-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">[m
+[31m-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap4.min.css">[m
+[31m-    <style>[m
+[31m-        .table-responsive {[m
+[31m-            min-height: 300px;[m
+[31m-        }[m
+[31m-        .filters input {[m
+[31m-            background-color: #f8f9fa;[m
+[31m-            border: 1px solid #dee2e6;[m
+[31m-        }[m
+[31m-        .btn-icon {[m
+[31m-            width: 2.2rem;[m
+[31m-            height: 2.2rem;[m
+[31m-            display: inline-flex;[m
+[31m-            align-items: center;[m
+[31m-            justify-content: center;[m
+[31m-            padding: 0;[m
+[31m-            font-size: 1.1rem;[m
+[31m-        }[m
+[31m-        .card-outline.card-primary {[m
+[31m-            border-top: 3px solid #007bff;[m
+[31m-        }[m
+[31m-        .badge {[m
+[31m-            font-size: 0.8rem;[m
+[31m-        }[m
+[31m-        .dataTables_filter {[m
+[31m-            display: none;[m
+[31m-        }[m
+[31m-    </style>[m
+[31m-@endsection[m
+[31m-[m
+[31m-@section('js')[m
+[31m-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap4.min.js"></script>[m
+[31m-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>[m
+[31m-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>[m
+[31m-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>[m
+[31m-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>[m
+[31m-[m
+[31m-<script>[m
+[31m-$(document).ready(function() {[m
+[31m-    // Initialize DataTable[m
+[31m-    var table = $('#positions-table').DataTable({[m
+[31m-        responsive: true,[m
+[31m-        autoWidth: false,[m
+[31m-        order: [[0, 'asc']],[m
+[31m-        dom: 'B<"d-flex justify-content-between align-items-center mb-2"lf>rtip',[m
+[31m-        pageLength: 8,[m
+[31m-        lengthChange: false,[m
+[31m-        paging: true,[m
+[31m-        scrollCollapse: false,[m
+[31m-        initComplete: function() {[m
+[31m-            var tableWrapper = $('#positions-table').closest('.dataTables_wrapper');[m
+[31m-            $('#positions-table-controls').append(tableWrapper.find('.dt-buttons')).append(tableWrapper.find('.dataTables_length'));[m
+[31m-        },[m
+[31m-        buttons: [[m
+[31m-            {[m
+[31m-                extend: 'excel',[m
+[31m-                text: '<i class="fas fa-file-excel"></i> Excel',[m
+[31m-                className: 'btn btn-success btn-sm',[m
+[31m-                exportOptions: {[m
+[31m-                    columns: ':not(:last-child)'[m
+[31m-                }[m
+[31m-            },[m
+[31m-            {[m
+[31m-                extend: 'pdf',[m
+[31m-                text: '<i class="fas fa-file-pdf"></i> PDF',[m
+[31m-                className: 'btn btn-danger btn-sm',[m
+[31m-                exportOptions: {[m
+[31m-                    columns: ':not(:last-child)'[m
+[31m-                }[m
+[31m-            },[m
+[31m-            {[m
+[31m-                extend: 'print',[m
+[31m-                text: '<i class="fas fa-print"></i> Print',[m
+[31m-                className: 'btn btn-info btn-sm',[m
+[31m-                exportOptions: {[m
+[31m-                    columns: ':not(:last-child)'[m
+[31m-                }[m
+[31m-            }[m
+[31m-        ],[m
+[31m-        language: {[m
+[31m-            zeroRecords: "No matching records found",[m
+[31m-            info: "",[m
+[31m-            infoEmpty: "",[m
+[31m-            infoFiltered: "",[m
+[31m-            search: "Search:"[m
+[31m-        }[m
+[31m-    });[m
+[31m-[m
+[31m-    // Global search[m
+[31m-    $('#global-search').on('keyup', function() {[m
+[31m-        table.search(this.value).draw();[m
+[31m-    });[m
+[31m-[m
+[31m-    // Auto-dismiss alerts[m
+[31m-    setTimeout(function() {[m
+[31m-        $('.alert').fadeOut('slow');[m
+[31m-    }, 5000);[m
+[31m-});[m
+[31m-</script>[m
+[31m-@endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/profile.blade.php b/resources/views/profile.blade.php[m
+[1mnew file mode 100644[m
+[1mindex 0000000..92a4940[m
+[1m--- /dev/null[m
+[1m+++ b/resources/views/profile.blade.php[m
+[36m@@ -0,0 +1,19 @@[m
+[32m+[m[32m@extends('adminlte::page')[m
+[32m+[m
+[32m+[m[32m@section('title', 'My Profile')[m
+[32m+[m
+[32m+[m[32m@section('content_header')[m
+[32m+[m[32m    <h1>My Profile</h1>[m
+[32m+[m[32m@stop[m
+[32m+[m
+[32m+[m[32m@section('content')[m
+[32m+[m[32m    <div class="card">[m
+[32m+[m[32m        <div class="card-body">[m
+[32m+[m[32m            <p><strong>Name:</strong> {{ $user->name }}</p>[m
+[32m+[m[32m            <p><strong>Email:</strong> {{ $user->email }}</p>[m
+[32m+[m[32m            <p><strong>Role:</strong> {{ $user->role ?? 'N/A' }}</p>[m
+[32m+[m[32m            <p><strong>Phone:</strong> {{ $user->phone ?? 'N/A' }}</p>[m
+[32m+[m[32m            <p><strong>Member since:</strong> {{ $user->created_at->format('F d, Y') }}</p>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m@stop[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/reqOffice/edit.blade.php b/resources/views/reqOffice/edit.blade.php[m
+[1mindex d4eede0..e69de29 100644[m
+[1m--- a/resources/views/reqOffice/edit.blade.php[m
+[1m+++ b/resources/views/reqOffice/edit.blade.php[m
+[36m@@ -1,122 +0,0 @@[m
+[31m-@extends('adminlte::page')[m
+[31m-[m
+[31m-@section('title', 'Edit Requesting Office')[m
+[31m-[m
+[31m-@section('content_header')[m
+[31m-    <div class="row mb-2">[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <h1>Edit Requesting Office</h1>[m
+[31m-        </div>[m
+[31m-        <div class="col-sm-6">[m
+[31m-            <ol class="breadcrumb float-sm-right">[m
+[31m-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>[m
+[31m-                <li class="breadcrumb-item"><a href="{{ route('reqOffice.index') }}">Requesting Offices</a></li>[m
+[31m-                <li class="breadcrumb-item active">Edit</li>[m
+[31m-            </ol>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('content')[m
+[31m-    <div class="row justify-content-center">[m
+[31m-        <div class="col-md-8">[m
+[31m-            <div class="card card-primary card-outline shadow-sm">[m
+[31m-                <div class="card-header bg-white border-bottom-0 d-flex align-items-center" style="padding-bottom: 0.5rem;">[m
+[31m-                    <h3 class="card-title mb-0 font-weight-bold text-primary" style="font-size: 1.25rem;">[m
+[31m-                        <i class="fas fa-edit mr-2 text-primary"></i>Edit Requesting Office[m
+[31m-                    </h3>[m
+[31m-                </div>[m
+[31m-                <hr class="my-0">[m
+[31m-                <form action="{{ route('reqOffice.update', $office->id) }}" method="POST" autocomplete="off">[m
+[31m-                    @csrf[m
+[31m-                    @method('PUT')[m
+[31m-                    <div class="card-body">[m
+[31m-                        @if ($errors->any())[m
+[31m-                            <div class="alert alert-danger alert-dismissible">[m
+[31m-                                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>[m
+[31m-                                <h5><i class="icon fas fa-ban"></i> Error!</h5>[m
+[31m-                                <ul class="mb-0">[m
+[31m-                                    @foreach ($errors->all() as $error)[m
+[31m-                                        <li>{{ $error }}</li>[m
+[31m-                                    @endforeach[m
+[31m-                                </ul>[m
+[31m-                            </div>[m
+[31m-                        @endif[m
+[31m-                        <div class="form-group">[m
+[31m-                            <label for="reqOffice">Requesting Office Name <span class="text-danger">*</span></label>[m
+[31m-                            <div class="input-group">[m
+[31m-                                <div class="input-group-prepend">[m
+[31m-                                    <span class="input-group-text"><i class="fas fa-building"></i></span>[m
+[31m-                                </div>[m
+[31m-                                <input type="text"[m
+[31m-                                       name="reqOffice"[m
+[31m-                                       id="reqOffice"[m
+[31m-                                       class="form-control @error('reqOffice') is-invalid @enderror"[m
+[31m-                                       value="{{ old('reqOffice', $office->reqOffice) }}"[m
+[31m-                                       data-original-value="{{ old('reqOffice', $office->reqOffice) }}"[m
+[31m-                                       placeholder="Enter office name (e.g. CEISSAFP)"[m
+[31m-                                       maxlength="255"[m
+[31m-                                       required>[m
+[31m-                                @error('reqOffice')[m
+[31m-                                    <span class="invalid-feedback">{{ $message }}</span>[m
+[31m-                                @enderror[m
+[31m-                            </div>[m
+[31m-                        </div>[m
+[31m-                    </div>[m
+[31m-                    <div class="card-footer bg-light">[m
+[31m-                        <div class="d-flex justify-content-end">[m
+[31m-                            <a href="{{ route('reqOffice.index') }}" class="btn btn-danger mr-2">[m
+[31m-                                <i class="fas fa-times"></i> Cancel[m
+[31m-                            </a>[m
+[31m-                            <button type="submit" class="btn btn-primary">[m
+[31m-                                <i class="fas fa-save"></i> Update Office[m
+[31m-                            </button>[m
+[31m-                        </div>[m
+[31m-                    </div>[m
+[31m-                </form>[m
+[31m-            </div>[m
+[31m-        </div>[m
+[31m-    </div>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('css')[m
+[31m-    <style>[m
+[31m-        .card-primary.card-outline {[m
+[31m-            border-top: 3px solid #007bff;[m
+[31m-        }[m
+[31m-        .input-group-text {[m
+[31m-            background-color: #f8f9fa;[m
+[31m-            border-color: #ced4da;[m
+[31m-        }[m
+[31m-        .form-group label {[m
+[31m-            font-weight: 600;[m
+[31m-            color: #495057;[m
+[31m-        }[m
+[31m-        .card-footer {[m
+[31m-            background-color: #f8f9fa;[m
+[31m-            border-top: 1px solid #dee2e6;[m
+[31m-        }[m
+[31m-    </style>[m
+[31m-@stop[m
+[31m-[m
+[31m-@section('js')[m
+[31m-<script>[m
+[31m-    // Auto-dismiss alerts[m
+[31m-    setTimeout(function() {[m
+[31m-        $('.alert').fadeOut('slow');[m
+[31m-    }, 5000);[m
+[31m-[m
+[31m-    // Clear textbox on focus if value matches original[m
+[31m-    document.addEventListener('DOMContentLoaded', function() {[m
+[31m-        var reqOfficeInput = document.getElementById('reqOffice');[m
+[31m-        if (reqOfficeInput) {[m
+[31m-            reqOfficeInput.addEventListener('focus', function() {[m
+[31m-                var original = this.getAttribute('data-original-value');[m
+[31m-                if (this.value === original) {[m
+[31m-                    this.value = '';[m
+[31m-                }[m
+[31m-            });[m
+[31m-        }[m
+[31m-    });[m
+[31m-</script>[m
+[31m-@stop[m
+\ No newline at end of file[m
+[1mdiff --git a/routes/web.php b/routes/web.php[m
+[1mindex 1cc98f5..cbc9f39 100644[m
+[1m--- a/routes/web.php[m
+[1m+++ b/routes/web.php[m
+[36m@@ -1,31 +1,26 @@[m
+ <?php[m
+ [m
+[31m-use App\Http\Controllers\HomeController;[m
+[31m-use App\Http\Controllers\ticketController;[m
+[31m-use App\Http\Controllers\reqOfficeController;[m
+ use Illuminate\Support\Facades\Route;[m
+ use Illuminate\Support\Facades\Auth;[m
+[32m+[m[32muse App\Http\Controllers\HomeController;[m
+[32m+[m[32muse App\Http\Controllers\TicketController;[m
+[32m+[m[32muse App\Http\Controllers\ReqOfficeController;[m
+[32m+[m[32muse App\Http\Controllers\UserController; // Add this import[m
+ [m
+[31m-// Redirect root to login[m
+[32m+[m[32m// Authentication Routes[m
+[32m+[m[32mAuth::routes();[m
+[32m+[m
+[32m+[m[32m// Redirect Root to Login[m
+ Route::get('/', function () {[m
+     return redirect()->route('login');[m
+ });[m
+ [m
+[31m-Route::get('post', function () {[m
+[31m-    return view('post');[m
+[31m-});[m
+[31m-[m
+[31m-// Authentication routes (only if available)[m
+[31m-if (method_exists(Auth::class, 'routes')) {[m
+[31m-    Auth::routes();[m
+[31m-}[m
+[31m-[m
+[31m-// Protected routes[m
+[32m+[m[32m// Authenticated Routes[m
+ Route::middleware(['auth'])->group(function () {[m
+[31m-    Route::get('/home', [HomeController::class, 'index'])->name('home');[m
+[32m+[m[32m   Route::get('/home', [HomeController::class, 'index'])->name('home');[m
+     Route::get('/tickets', [ticketController::class, 'index'])->name('tickets');[m
+[31m-    Route::get('/tickets/create', [App\Http\Controllers\TicketController::class, 'create'])->name('pages.ticket.create');[m
+[31m-    Route::resource('ticket', \App\Http\Controllers\TicketController::class);[m
+[32m+[m[32m    Route::get('/tickets/create', [ticketController::class, 'create'])->name('pages.ticket.create');[m
+[32m+[m[32m    Route::resource('ticket', ticketController::class);[m
+ [m
+     // Explicit route for Add Requesting Office form[m
+     Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');[m
+[36m@@ -33,6 +28,15 @@[m
+     // CRUD routes for Requesting Office (reqOffice)[m
+     Route::resource('/reqOffice', reqOfficeController::class);[m
+ [m
+[31m-    // CRUD routes for Position[m
+[31m-    Route::resource('/position', \App\Http\Controllers\positionController::class);[m
+[32m+[m
+[32m+[m[32m    // Profile[m
+[32m+[m[32m    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');[m
+[32m+[m[41m    [m
+[32m+[m[41m    [m
+[32m+[m[32m    // Admin User Management[m
+[32m+[m[32m    Route::prefix('admin')->name('admin.')->group(function() {[m
+[32m+[m[32m        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);[m
+[32m+[m[32m    });[m
+[32m+[m
+[32m+[m[41m   [m
+ });[m
+\ No newline at end of file[m
