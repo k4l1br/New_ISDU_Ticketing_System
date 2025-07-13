@@ -1,13 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ticketController;
 use App\Http\Controllers\reqOfficeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PositionController;
-use App\Http\Controllers\UserController;
+//use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Models\ticket;
 
 // Redirect root to login
@@ -36,16 +37,20 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('ticket', ticketController::class);
 
     // Requesting Office
-    Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');
-    Route::resource('/reqOffice', reqOfficeController::class);
+    // Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');
+    // Route::resource('/reqOffice', reqOfficeController::class);
 
     // User Profile
-    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
+    // Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
 
-    // Admin User Management
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-    });
+    // // Admin User Management
+    // Route::prefix('admin')->name('admin.')->group(function () {
+    //     Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    // });
+
+// Requesting Office routes
+    Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');
+    Route::resource('/reqOffice', reqOfficeController::class);
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -54,7 +59,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard-tasks-report', [DashboardController::class, 'tasksReport']);
 
     // Position
+    // Route::get('/position', [PositionController::class, 'index'])->name('position.index');
+    // Route::resource('position', PositionController::class);
+    
+    // Position page route 
     Route::get('/position', [PositionController::class, 'index'])->name('position.index');
+    Route::middleware(['auth'])->group(function () {
+    // Other routes...
+
     Route::resource('position', PositionController::class);
+});
 });
 
