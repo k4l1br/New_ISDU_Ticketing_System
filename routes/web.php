@@ -29,6 +29,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tickets/create', [ticketController::class, 'create'])->name('pages.ticket.create');
     Route::resource('ticket', ticketController::class);
 
+    // Requesting Office routes
     Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');
     Route::resource('/reqOffice', reqOfficeController::class);
 
