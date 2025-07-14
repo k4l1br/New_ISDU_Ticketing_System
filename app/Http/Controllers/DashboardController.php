@@ -32,14 +32,14 @@ class DashboardController extends Controller
 {
     try {
         // Check if there's any real data first
-        $hasRealData = Ticket::whereNotNull('unit')->exists();
+        $hasRealData = Ticket::whereNotNull('unitResponsible')->exists();
         
         if ($hasRealData) {
             // Use real data if available
-            $units = Ticket::select('unit')
+            $units = Ticket::select('unitResponsible')
                           ->distinct()
-                          ->whereNotNull('unit')
-                          ->pluck('unit')
+                          ->whereNotNull('unitResponsible')
+                          ->pluck('unitResponsible')
                           ->toArray();
         } else {
             // Use dummy data if no real data exists
@@ -51,13 +51,13 @@ class DashboardController extends Controller
                 // Real data counts
                 return [
                     'unit' => $unit,
-                    'in_progress' => Ticket::where('unit', $unit)
+                    'in_progress' => Ticket::where('unitResponsible', $unit)
                                         ->where('status', 'like', '%in progress%')
                                         ->count(),
-                    'no_action' => Ticket::where('unit', $unit)
+                    'no_action' => Ticket::where('unitResponsible', $unit)
                                       ->where('status', 'like', '%no action%')
                                       ->count(),
-                    'completed' => Ticket::where('unit', $unit)
+                    'completed' => Ticket::where('unitResponsible', $unit)
                                       ->where('status', 'like', '%complete%')
                                       ->count(),
                 ];
@@ -122,32 +122,38 @@ class DashboardController extends Controller
 
         if ($range === 'monthly') {
             $labels = [];
-            $values = [];
-            
+            $completed = [];
+            $created = [];
             for ($i = 5; $i >= 0; $i--) {
                 $date = Carbon::now()->subMonths($i);
                 $labels[] = $date->format('M');
-                $values[] = Ticket::where('status', 'like', '%complete%')
+                $completed[] = Ticket::where('status', 'like', '%complete%')
                                 ->whereMonth('created_at', $date->month)
+                                ->whereYear('created_at', $date->year)
+                                ->count();
+                $created[] = Ticket::whereMonth('created_at', $date->month)
                                 ->whereYear('created_at', $date->year)
                                 ->count();
             }
         } else {
             $labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            $values = [];
-            
+            $completed = [];
+            $created = [];
             $startOfWeek = Carbon::now()->startOfWeek();
             for ($i = 0; $i < 7; $i++) {
                 $day = $startOfWeek->copy()->addDays($i);
-                $values[] = Ticket::where('status', 'like', '%complete%')
+                $completed[] = Ticket::where('status', 'like', '%complete%')
                                 ->whereDate('created_at', $day)
+                                ->count();
+                $created[] = Ticket::whereDate('created_at', $day)
                                 ->count();
             }
         }
-  
+
         return response()->json([
             'labels' => $labels,
-            'values' => $values
+            'completed' => $completed,
+            'created' => $created
         ]);
     }
 }

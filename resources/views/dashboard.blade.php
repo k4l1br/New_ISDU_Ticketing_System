@@ -4,7 +4,7 @@
 
 @section('content_header')
     <h1>Ticket Status Overview</h1>
-    <small class="text-muted">Last updated: <span id="lastUpdated">{{ now()->format('Y-m-d H:i:s') }}</span></small>
+    <small class="text-muted">Last updated: <span id="lastUpdated"></span></small>
 @stop
 
 @section('content')
@@ -15,7 +15,7 @@
             <span class="info-box-icon"><i class="fas fa-clock"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">In Progress</span>
-                <span class="info-box-number" id="in_progress_count">{{ $data['in_progress'] ?? 0 }}</span>
+                <span class="info-box-number" id="in_progress_count">0</span>
                 <div class="progress">
                     <div class="progress-bar" id="in_progress_progress"></div>
                 </div>
@@ -27,7 +27,7 @@
             <span class="info-box-icon"><i class="fas fa-thumbs-up"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">No Action</span>
-                <span class="info-box-number" id="no_action_count">{{ $data['no_action'] ?? 0 }}</span>
+                <span class="info-box-number" id="no_action_count">0</span>
                 <div class="progress">
                     <div class="progress-bar" id="no_action_progress"></div>
                 </div>
@@ -39,7 +39,7 @@
             <span class="info-box-icon"><i class="fas fa-flag"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Completed</span>
-                <span class="info-box-number" id="completed_count">{{ $data['completed'] ?? 0 }}</span>
+                <span class="info-box-number" id="completed_count">0</span>
                 <div class="progress">
                     <div class="progress-bar" id="completed_progress"></div>
                 </div>
@@ -54,7 +54,7 @@
         <div class="card">
             <div class="card-header">
                 <span>Ticket Status Distribution</span>
-                <span class="badge badge-primary float-right" id="totalTickets">{{ ($data['in_progress'] ?? 0) + ($data['no_action'] ?? 0) + ($data['completed'] ?? 0) }} Total</span>
+                <span class="badge badge-primary float-right" id="totalTickets">0 Total</span>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center" style="height: 340px;">
                 <canvas id="ticketPieChart" style="width:320px!important;height:320px!important;max-width:100%;max-height:100%;display:block;"></canvas>
@@ -80,11 +80,11 @@
 <!-- Tickets per Unit -->
 <div class="card mt-4">
     <div class="card-header">Tickets per Unit</div>
-    <div class="card-body">
+    <div class="card-body" style="min-height: 340px; max-height: 500px; overflow-y: auto;">
         <table id="perUnitTable" class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Unit</th>
+                    <th>Unit Responsible</th>
                     <th>In Progress</th>
                     <th>No Action</th>
                     <th>Completed</th>
@@ -148,23 +148,45 @@ function initCharts() {
     updateProgressBars(total);
 }
 
-function renderLineChart(data, labels) {
+function renderLineChart(completed, created, no_action, labels) {
     const ctx = document.getElementById('taskLineChart').getContext('2d');
     if (taskLineChart) taskLineChart.destroy();
     taskLineChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [{
-                label: 'Completed Tasks',
-                data: data,
-                borderColor: '#28a745',
-                backgroundColor: 'rgba(40,167,69,0.1)',
-                tension: 0.3,
-                fill: true,
-                pointRadius: 5,
-                pointHoverRadius: 7
-            }]
+            datasets: [
+                {
+                    label: 'Completed Tasks',
+                    data: completed,
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40,167,69,0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                },
+                {
+                    label: 'Tickets Created',
+                    data: created,
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0,123,255,0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                },
+                {
+                    label: 'No Action',
+                    data: no_action,
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255,193,7,0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -259,6 +281,7 @@ function updateDashboard() {
             
             updateProgressBars(total);
             document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            refreshPerUnit();
         })
         .catch(error => console.error('Dashboard update error:', error));
 }
@@ -267,7 +290,7 @@ function loadReport(range = 'weekly') {
     fetch(`/dashboard-tasks-report?range=${range}`)
         .then(res => res.json())
         .then(data => {
-            renderLineChart(data.values || [], data.labels || []);
+            renderLineChart(data.completed || [], data.created || [], data.no_action || [], data.labels || []);
         })
         .catch(error => console.error('Report load error:', error));
 }
