@@ -75,7 +75,10 @@ class ticketController extends Controller
      */
     public function edit(Ticket $ticket)
     {
-        return view('tickets.edit', compact('ticket'));
+        // Fetch positions and reqOffices for the edit form
+        $positions = \App\Models\positionModel::orderBy('name')->pluck('name')->toArray();
+        $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice')->toArray();
+        return view('layouts.pages.ticket.edit', compact('ticket', 'positions', 'reqOffices'));
     }
 
     /**
