@@ -14,6 +14,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// Home route to fix 'Route [home] not defined' error
+Route::get('/home', function () {
+    return view('home');
+})->name('home');
+
 Route::get('post', function () {
     return view('post');
 });

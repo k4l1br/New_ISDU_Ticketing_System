@@ -56,8 +56,8 @@
                 <span>Ticket Status Distribution</span>
                 <span class="badge badge-primary float-right" id="totalTickets">{{ ($data['in_progress'] ?? 0) + ($data['no_action'] ?? 0) + ($data['completed'] ?? 0) }} Total</span>
             </div>
-            <div class="card-body" style="height: 300px;">
-                <canvas id="ticketPieChart"></canvas>
+            <div class="card-body d-flex align-items-center justify-content-center" style="height: 340px;">
+                <canvas id="ticketPieChart" style="width:320px!important;height:320px!important;max-width:100%;max-height:100%;display:block;"></canvas>
             </div>
         </div>
     </div>
@@ -70,8 +70,8 @@
                     <option value="monthly">Monthly</option>
                 </select>
             </div>
-            <div class="card-body" style="height: 300px;">
-                <canvas id="taskLineChart"></canvas>
+            <div class="card-body d-flex align-items-center justify-content-center" style="height: 340px;">
+                <canvas id="taskLineChart" style="width:320px!important;height:320px!important;max-width:100%;max-height:100%;display:block;"></canvas>
             </div>
         </div>
     </div>
