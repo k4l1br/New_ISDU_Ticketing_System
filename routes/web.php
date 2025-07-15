@@ -5,6 +5,7 @@ use App\Http\Controllers\reqOfficeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\ReferenceController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ticket;
@@ -43,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard-data', [DashboardController::class, 'getData']);
     Route::get('/dashboard-per-unit', [DashboardController::class, 'getTicketsPerUnit']);
     Route::get('/dashboard-tasks-report', [DashboardController::class, 'tasksReport']);
+    Route::get('/home', fn() => redirect('/dashboard'));
 
     // Position
     Route::get('/position', [PositionController::class, 'index'])->name('position.index');
@@ -55,4 +57,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
     });
+
+    //Reference
+    Route::resource('references', ReferenceController::class);
+    
+    //Status
+    Route::resource('status', \App\Http\Controllers\StatusController::class);
+
 });

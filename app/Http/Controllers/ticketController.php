@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\reqOffice;
+use App\Models\Reference;
 use Illuminate\Http\Request;
 
 class ticketController extends Controller
@@ -20,13 +21,15 @@ class ticketController extends Controller
     /**
      * Show the form for creating a new ticket.
      */
-    public function create()
-    {
-        // Get all unique requesting offices from reqOffice table
-        $positions = \App\Models\positionModel::orderBy('name')->pluck('name');
-        $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice');
-        return view('layouts.pages.ticket.create', compact('positions', 'reqOffices'));
-    }
+   public function create()
+{
+    $positions = \App\Models\positionModel::orderBy('name')->pluck('name');
+    $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice');
+    $references = Reference::orderBy('reference_type')->pluck('reference_type', 'id');
+    $statuses = \App\Models\Status::orderBy('name')->pluck('name'); // <-- Add this line
+
+    return view('layouts.pages.ticket.create', compact('positions', 'reqOffices', 'references', 'statuses'));
+}
 
     /**
      * Store a newly created ticket in storage.
@@ -40,16 +43,17 @@ class ticketController extends Controller
             'contactNumber' => 'required|string|max:255',
             'emailAddress' => 'required|email|max:255',
             'reqOffice' => 'required|string|max:255',
-            'reference' => 'required|string|max:255',
+            'reference' => 'required|string|max:255', // or 'reference_id' if using foreign key
             'authority' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'unitResponsible' => 'required|string|max:255',
         ]);
 
-        // If 'Others' is selected, use the custom value and store it in session for future use
+        // If 'Others' is selected in reqOffice, use the custom value
         if ($request->reqOffice === 'Others' && $request->filled('reqOffice_other')) {
             $validated['reqOffice'] = $request->reqOffice_other;
-            // Save to session for future population
+
+            // Save 'Others' to session
             $otherOffices = session('other_offices', []);
             if (!in_array($request->reqOffice_other, $otherOffices)) {
                 $otherOffices[] = $request->reqOffice_other;
@@ -67,7 +71,7 @@ class ticketController extends Controller
      */
     public function show(Ticket $ticket)
     {
-        // return view('tickets.show', compact('ticket'));
+        //
     }
 
     /**
@@ -75,10 +79,11 @@ class ticketController extends Controller
      */
     public function edit(Ticket $ticket)
     {
-        // Fetch positions and reqOffices for the edit form
         $positions = \App\Models\positionModel::orderBy('name')->pluck('name')->toArray();
         $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice')->toArray();
-        return view('layouts.pages.ticket.edit', compact('ticket', 'positions', 'reqOffices'));
+        $references = Reference::orderBy('reference_type')->pluck('reference_type', 'id');
+
+        return view('layouts.pages.ticket.edit', compact('ticket', 'positions', 'reqOffices', 'references'));
     }
 
     /**
@@ -110,16 +115,12 @@ class ticketController extends Controller
     public function destroy(Ticket $ticket)
     {
         $ticket->delete();
-
         return redirect()->route('ticket.index')->with('success', 'Ticket deleted successfully.');
-        
     }
 
-        public function newCount()
+    public function newCount()
     {
         $count = Ticket::where('status', 'new')->count();
         return response()->json(['count' => $count]);
     }
-    
 }
-

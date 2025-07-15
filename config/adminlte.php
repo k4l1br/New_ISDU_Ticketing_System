@@ -332,7 +332,7 @@ return [
             'text' => 'Tickets',
             'url' => '/tickets',
             'icon' => 'far fa-fw fa-file',
-            'label' => 4,
+            // 'label' => 4,
             'label_color' => 'success',
         ],
 
@@ -371,28 +371,38 @@ return [
                     'icon' => 'fas fa-users-cog',
                 ],
                 [
+                   'text' => 'References',
+                   'url' => 'references',
+                   'icon' => 'fas fa-book',
+                ],
+                [
+                 'text' => 'Statuses',
+                 'url'  => 'status',
+                 'icon' => 'fas fa-flag',
+                ],
+                [
                     'text' => 'System Settings',
                     'url' => 'admin/settings',
                     'icon' => 'fas fa-cogs',
                 ],
             ],
         ],
-        ['header' => 'labels'],
-        [
-            'text' => 'important',
-            'icon_color' => 'red',
-            'url' => '#',
-        ],
-        [
-            'text' => 'warning',
-            'icon_color' => 'yellow',
-            'url' => '#',
-        ],
-        [
-            'text' => 'information',
-            'icon_color' => 'cyan',
-            'url' => '#',
-        ],
+        // ['header' => 'labels'],
+        // [
+        //     'text' => 'important',
+        //     'icon_color' => 'red',
+        //     'url' => '#',
+        // ],
+        // [
+        //     'text' => 'warning',
+        //     'icon_color' => 'yellow',
+        //     'url' => '#',
+        // ],
+        // [
+        //     'text' => 'information',
+        //     'icon_color' => 'cyan',
+        //     'url' => '#',
+        // ],
     ],
 
     /*
