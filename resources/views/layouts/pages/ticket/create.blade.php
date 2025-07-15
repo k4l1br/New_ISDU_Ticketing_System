@@ -223,18 +223,15 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-file-alt"></i></span>
                                         </div>
-                                        <select name="reference" 
-                                                id="reference"
-                                                class="form-control select2 @error('reference') is-invalid @enderror" 
-                                                required>
-                                            <option value="">Select reference</option>
-                                            <option value="Service Directive" {{ old('reference') == 'Memo' ? 'selected' : '' }}>Service Directive</option>
-                                            <option value="Email" {{ old('reference') == 'Email' ? 'selected' : '' }}>Email</option>
-                                            <option value="Verbal Request" {{ old('reference') == 'Verbal Request' ? 'selected' : '' }}>Verbal Request</option>
-                                            <option value="Call" {{ old('reference') == 'Phone Call' ? 'selected' : '' }}> Call</option>
-                                            <option value="Text Message" {{ old('reference') == 'Text Message' ? 'selected' : '' }}>Text Message</option>
-
-                                        </select>
+                                       <select name="reference" 
+                                         id="reference"
+                                         class="form-control select2 @error('reference') is-invalid @enderror" 
+                                         required>
+                                         <option value="">Select reference</option>
+                                         @foreach($references as $ref)
+                                         <option value="{{ $ref }}" {{ old('reference') == $ref ? 'selected' : '' }}>{{ $ref }}</option>
+                                         @endforeach
+                                         </select>
                                         @error('reference')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
@@ -276,14 +273,14 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-flag"></i></span>
                                         </div>
-                                        <select name="status" 
-                                                id="status"
-                                                class="form-control select2 @error('status') is-invalid @enderror" 
-                                                required>
-                                            <option value="">Select status</option>
-                                            <option value="No Action" {{ old('status') == 'No Action' ? 'selected' : '' }}>No Action</option>
-                                            <option value="In progress" {{ old('status') == 'In progress' ? 'selected' : '' }}>In Progress</option>
-                                            <option value="Complete" {{ old('status') == 'Complete' ? 'selected' : '' }}>Complete</option>
+                                       <select name="status" 
+                                         id="status"
+                                         class="form-control select2 @error('status') is-invalid @enderror" 
+                                         required>
+                                         <option value="">Select status</option>
+                                         @foreach($statuses as $status)
+                                         <option value="{{ $status }}" {{ old('status') == $status ? 'selected' : '' }}>{{ $status }}</option>
+                                         @endforeach
                                         </select>
                                         @error('status')
                                             <span class="invalid-feedback">{{ $message }}</span>
