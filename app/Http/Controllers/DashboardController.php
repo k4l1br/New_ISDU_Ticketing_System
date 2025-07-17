@@ -30,91 +30,43 @@ class DashboardController extends Controller
 
   public function getTicketsPerUnit()
 {
-    try {
-        // Check if there's any real data first
-        $hasRealData = Ticket::whereNotNull('unitResponsible')->exists();
-        
-        if ($hasRealData) {
-            // Use real data if available
-            $units = Ticket::select('unitResponsible')
-                          ->distinct()
-                          ->whereNotNull('unitResponsible')
-                          ->pluck('unitResponsible')
-                          ->toArray();
-        } else {
-            // Use dummy data if no real data exists
-            $units = ['MB', 'ISDU', 'NMU', 'REP'];
-        }
+    // Only use real data
+    $units = Ticket::select('unitResponsible')
+                  ->distinct()
+                  ->whereNotNull('unitResponsible')
+                  ->pluck('unitResponsible')
+                  ->toArray();
 
-        $data = collect($units)->map(function($unit) use ($hasRealData) {
-            if ($hasRealData) {
-                // Real data counts
-                return [
-                    'unit' => $unit,
-                    'in_progress' => Ticket::where('unitResponsible', $unit)
-                                        ->where('status', 'like', '%in progress%')
-                                        ->count(),
-                    'no_action' => Ticket::where('unitResponsible', $unit)
-                                      ->where('status', 'like', '%no action%')
-                                      ->count(),
-                    'completed' => Ticket::where('unitResponsible', $unit)
-                                      ->where('status', 'like', '%complete%')
-                                      ->count(),
-                ];
-            } else {
-                // Generate random dummy data (ensuring ISDU has some completed tickets for testing)
-                $completed = $unit === 'ISDU' ? 0 : rand(0, 8); // Force ISDU to 0 for testing
-                return [
-                    'unit' => $unit,
-                    'in_progress' => rand(0, 5),
-                    'no_action' => rand(0, 3),
-                    'completed' => $completed,
-                ];
-            }
-        })->toArray();
-
-        // Add totals per row
-        foreach ($data as &$row) {
-            $row['total'] = $row['in_progress'] + $row['no_action'] + $row['completed'];
-        }
-
-        return response()->json(['data' => $data]);
-
-    } catch (\Exception $e) {
-        // Fallback to dummy data if error occurs
-        $dummyData = [
-            [
-                'unit' => 'MB',
-                'in_progress' => 3,
-                'no_action' => 1,
-                'completed' => 4,
-                'total' => 8
-            ],
-            [
-                'unit' => 'ISDU',
-                'in_progress' => 1,
-                'no_action' => 2,
-                'completed' => 0,
-                'total' => 3
-            ],
-            [
-                'unit' => 'NMU',
-                'in_progress' => 2,
-                'no_action' => 2,
-                'completed' => 3,
-                'total' => 7
-            ],
-            [
-                'unit' => 'REP',
+    $data = collect($units)->map(function($unit) {
+        $in_progress = Ticket::where('unitResponsible', $unit)
+                            ->where('status', 'like', '%in progress%')
+                            ->count();
+        $no_action = Ticket::where('unitResponsible', $unit)
+                          ->where('status', 'like', '%no action%')
+                          ->count();
+        $completed = Ticket::where('unitResponsible', $unit)
+                          ->where('status', 'like', '%complete%')
+                          ->count();
+        $total = $in_progress + $no_action + $completed;
+        if ($total === 0) {
+            return [
+                'unit' => $unit,
                 'in_progress' => 0,
-                'no_action' => 1,
-                'completed' => 5,
-                'total' => 6
-            ]
+                'no_action' => 0,
+                'completed' => 0,
+                'total' => 0
+            ];
+        }
+        return [
+            'unit' => $unit,
+            'in_progress' => $in_progress,
+            'no_action' => $no_action,
+            'completed' => $completed,
+            'total' => $total
         ];
-        
-        return response()->json(['data' => $dummyData]);
-    }
+    })->toArray();
+
+    return response()->json(['data' => $data]);
 }
     public function tasksReport(Request $request)
     {

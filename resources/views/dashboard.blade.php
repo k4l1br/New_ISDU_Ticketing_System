@@ -253,8 +253,9 @@ function initPerUnitTable() {
         responsive: true,
         order: [[4, 'desc']], // Sort by total descending
         language: {
-            zeroRecords: "No units found",
-            infoEmpty: "No units available"
+            zeroRecords: "",
+            infoEmpty: "",
+            emptyTable: ""
         }
     });
 }

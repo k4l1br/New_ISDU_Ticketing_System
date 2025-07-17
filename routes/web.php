@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard-data', [DashboardController::class, 'getData']);
     Route::get('/dashboard-per-unit', [DashboardController::class, 'getTicketsPerUnit']);
     Route::get('/dashboard-tasks-report', [DashboardController::class, 'tasksReport']);
-    Route::get('/home', fn() => redirect('/dashboard'));
+    Route::get('/home', fn() => redirect('/dashboard'))->name('home');
 
     // Position
     Route::get('/position', [PositionController::class, 'index'])->name('position.index');
