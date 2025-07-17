@@ -33,7 +33,7 @@ class UserController extends Controller
     $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
-        'role' => 'required|string',
+        'role' => 'required|string|in:admin,super_admin',
         'password' => 'required|string|min:8|confirmed',
     ]);
 
@@ -59,11 +59,18 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $request->validate([
+        $validationRules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
-            'role' => ['required', 'string'],
-        ]);
+            'role' => ['required', 'string', 'in:admin,super_admin'],
+        ];
+
+        // Add password validation only if password is provided
+        if ($request->filled('password')) {
+            $validationRules['password'] = ['required', 'string', 'min:8', 'confirmed'];
+        }
+
+        $request->validate($validationRules);
 
         $user->update($request->only('name', 'email', 'role'));
 

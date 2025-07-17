@@ -31,37 +31,53 @@ if (method_exists(Auth::class, 'routes')) {
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/tickets', [ticketController::class, 'index'])->name('tickets');
-    Route::get('/tickets/create', [ticketController::class, 'create'])->name('pages.ticket.create');
-    Route::resource('ticket', ticketController::class);
-
-    // Requesting Office
-    Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');
-    Route::resource('/reqOffice', reqOfficeController::class);
-
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard-data', [DashboardController::class, 'getData']);
-    Route::get('/dashboard-per-unit', [DashboardController::class, 'getTicketsPerUnit']);
-    Route::get('/dashboard-tasks-report', [DashboardController::class, 'tasksReport']);
-    Route::get('/home', fn() => redirect('/dashboard'))->name('home');
-
-    // Position
-    Route::get('/position', [PositionController::class, 'index'])->name('position.index');
-    Route::resource('position', PositionController::class);
-
-    // User Profile
-    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
-
-    // Admin User Management
-    Route::prefix('admin')->name('admin.')->group(function () {
-        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+    
+    // Routes accessible by both admin and super_admin
+    Route::middleware(['role:admin,super_admin'])->group(function () {
+        Route::get('/tickets', [ticketController::class, 'index'])->name('ticket.index');
+        Route::get('/my-tickets', [ticketController::class, 'myTickets'])->name('tickets.my');
+        
+        // Ticket viewing and editing (admins can only edit status)
+        Route::get('/ticket/{ticket}', [ticketController::class, 'show'])->name('ticket.show');
+        Route::get('/ticket/{ticket}/edit', [ticketController::class, 'edit'])->name('ticket.edit');
+        Route::put('/ticket/{ticket}', [ticketController::class, 'update'])->name('ticket.update');
+        Route::patch('/ticket/{ticket}', [ticketController::class, 'update']);
+        
+        // Dashboard
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard-data', [DashboardController::class, 'getData']);
+        Route::get('/dashboard-per-unit', [DashboardController::class, 'getTicketsPerUnit']);
+        Route::get('/dashboard-tasks-report', [DashboardController::class, 'tasksReport']);
+        Route::get('/home', fn() => redirect('/dashboard'))->name('home');
     });
 
-    //Reference
-    Route::resource('references', ReferenceController::class);
-    
-    //Status
-    Route::resource('status', \App\Http\Controllers\StatusController::class);
+    // Routes only accessible by super_admin
+    Route::middleware(['role:super_admin'])->group(function () {
+        // Ticket creation and deletion (super admin only)
+        Route::get('/tickets/create', [ticketController::class, 'create'])->name('ticket.create');
+        Route::post('/ticket', [ticketController::class, 'store'])->name('ticket.store');
+        Route::delete('/ticket/{ticket}', [ticketController::class, 'destroy'])->name('ticket.destroy');
+        
+        // Requesting Office
+        Route::get('/reqOffice/create', [reqOfficeController::class, 'create'])->name('reqOffice.create');
+        Route::resource('/reqOffice', reqOfficeController::class);
 
+        // Position
+        Route::get('/position', [PositionController::class, 'index'])->name('position.index');
+        Route::resource('position', PositionController::class);
+
+        // Admin User Management
+        Route::prefix('admin')->name('admin.')->group(function () {
+            Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        });
+
+        //Reference
+        Route::resource('references', ReferenceController::class);
+        
+        //Status
+        Route::resource('status', \App\Http\Controllers\StatusController::class);
+    });
+
+    // Profile route accessible by all authenticated users
+    Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
 });
