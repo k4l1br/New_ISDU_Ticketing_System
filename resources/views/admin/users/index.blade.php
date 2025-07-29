@@ -13,10 +13,12 @@
         </div>
     </div>
     <div class="card-body">
-        <table class="table table-bordered">
+        <table class="table table-bordered table-hover">
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Name</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>Actions</th>
@@ -25,9 +27,25 @@
                     <th>
                         <input type="text" 
                                class="form-control form-control-sm" 
+                               name="id_search" 
+                               placeholder="Search ID..."
+                               value="{{ request('id_search') }}"
+                               form="searchForm">
+                    </th>
+                    <th>
+                        <input type="text" 
+                               class="form-control form-control-sm" 
                                name="name_search" 
                                placeholder="Search name..."
                                value="{{ request('name_search') }}"
+                               form="searchForm">
+                    </th>
+                    <th>
+                        <input type="text" 
+                               class="form-control form-control-sm" 
+                               name="username_search" 
+                               placeholder="Search username..."
+                               value="{{ request('username_search') }}"
                                form="searchForm">
                     </th>
                     <th>
@@ -49,39 +67,45 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($users as $user)
+                @forelse($users as $user)
                 <tr>
+                    <td>{{ $user->id }}</td>
                     <td>{{ $user->name }}</td>
+                    <td>{{ $user->username }}</td>
                     <td>{{ $user->email }}</td>
                     <td>
                         <span class="badge badge-{{ $user->role == 'admin' ? 'success' : 'primary' }}">
                             {{ ucfirst($user->role) }}
                         </span>
                     </td>
-                    <td>
-                        <!-- Edit Button -->
-                        <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        
-                    
-                        
-                        <!-- Review Button - Modal Version (Alternative) -->
-                        <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#reviewModal-{{ $user->id }}">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        
-                        <!-- Delete Button -->
-                        <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
-                                <i class="fas fa-trash"></i>
+                    <td class="text-center">
+                        <div class="btn-group">
+                            <!-- View Button -->
+                            <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#userModal-{{ $user->id }}">
+                                <i class="fas fa-eye"></i>
                             </button>
-                        </form>
+                            
+                            <!-- Edit Button -->
+                            <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            
+                            <!-- Delete Button -->
+                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="6" class="text-center">No users found</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -92,46 +116,65 @@
 
 <!-- Search Form -->
 <form id="searchForm" method="GET" action="{{ route('admin.users.index') }}" style="display: none;">
-    @foreach(request()->except('name_search', 'email_search', 'role_search', 'page') as $key => $value)
-        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+    @foreach(request()->except('page') as $key => $value)
+        @if($value)
+            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+        @endif
     @endforeach
 </form>
 
-<!-- Review Modals -->
+<!-- User Detail Modals -->
 @foreach($users as $user)
-<div class="modal fade" id="reviewModal-{{ $user->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="userModal-{{ $user->id }}" tabindex="-1" role="dialog" aria-labelledby="userModalLabel-{{ $user->id }}">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">User Details: {{ $user->name }}</h5>
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title" id="userModalLabel-{{ $user->id }}">User Details: {{ $user->name }}</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="row mb-3">
-                    <div class="col-md-4 font-weight-bold">Name:</div>
-                    <div class="col-md-8">{{ $user->name }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 font-weight-bold">Email:</div>
-                    <div class="col-md-8">{{ $user->email }}</div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 font-weight-bold">Role:</div>
-                    <div class="col-md-8">
-                        <span class="badge badge-{{ $user->role == 'admin' ? 'success' : 'primary' }}">
-                            {{ ucfirst($user->role) }}
-                        </span>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <p class="form-control-static">{{ $user->name }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <p class="form-control-static">{{ $user->username }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <p class="form-control-static">{{ $user->email }}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-4 font-weight-bold">Created At:</div>
-                    <div class="col-md-8">{{ $user->created_at->format('M d, Y H:i') }}</div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Role</label>
+                            <p class="form-control-static">
+                                <span class="badge badge-{{ $user->role == 'admin' ? 'success' : 'primary' }}">
+                                    {{ ucfirst($user->role) }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Created</label>
+                            <p class="form-control-static">{{ $user->created_at->format('F j, Y \a\t g:i a') }}</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Updated</label>
+                            <p class="form-control-static">{{ $user->updated_at->format('F j, Y \a\t g:i a') }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit User
+                </a>
             </div>
         </div>
     </div>
@@ -140,12 +183,34 @@
 
 @section('js')
 <script>
-    // Submit form when search fields change
-    document.querySelectorAll('#searchForm input, #searchForm select').forEach(element => {
-        element.addEventListener('change', function() {
-            document.getElementById('searchForm').submit();
+    $(document).ready(function() {
+        // Submit search form when any filter changes
+        $('input[name$="_search"], select[name$="_search"]').on('change', function() {
+            $('#searchForm').submit();
+        });
+
+        // Clear search filters
+        $('#clearFilters').on('click', function() {
+            $('input[name$="_search"], select[name$="_search"]').val('');
+            $('#searchForm').submit();
         });
     });
 </script>
+@endsection
+
+@section('css')
+<style>
+    .badge {
+        font-size: 100%;
+    }
+    .table th {
+        vertical-align: middle;
+    }
+    .form-control-static {
+        padding-top: 0;
+        padding-bottom: 0;
+        min-height: auto;
+    }
+</style>
 @endsection
 @endsection

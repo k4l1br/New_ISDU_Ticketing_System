@@ -30,12 +30,15 @@ Route::get('/post', function () {
     return view('post');
 });
 
- Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+ Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard')->middleware('auth');
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-Route::post('register', [RegisterController::class, 'register']);
+    
+    // Registration routes (optional)
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
+});
+
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
