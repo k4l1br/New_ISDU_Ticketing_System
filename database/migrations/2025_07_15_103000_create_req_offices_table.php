@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::create('req_offices', function (Blueprint $table) {
             $table->id();
-            $table->string('req_office', 45);
+            $table->string('reqOffice', 45); // Changed from req_office
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('req_offices');
+          Schema::dropIfExists('req_offices');
     }
 };

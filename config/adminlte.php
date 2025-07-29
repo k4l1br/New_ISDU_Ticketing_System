@@ -344,11 +344,11 @@ return [
             'url' => '/profile',
             'icon' => 'fas fa-fw fa-user',
         ],
-        [
-             'text' => 'Password Change',
-            'url'  => 'password/edit',  // or @route('password.edit') in Blade
-            'icon' => 'fas fa-fw fa-lock',
-        ],
+        // [
+        //      'text' => 'Password Change',
+        //     'url'  => 'password/edit',  // or @route('password.edit') in Blade
+        //     'icon' => 'fas fa-fw fa-lock',
+        // ],
         [
             'text' => 'Administrator',
             'icon' => 'fas fa-user-cog',
