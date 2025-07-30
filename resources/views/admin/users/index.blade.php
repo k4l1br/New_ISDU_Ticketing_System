@@ -12,7 +12,7 @@
             </a>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body table-responsive">
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>
@@ -25,36 +25,16 @@
                 </tr>
                 <tr>
                     <th>
-                        <input type="text" 
-                               class="form-control form-control-sm" 
-                               name="id_search" 
-                               placeholder="Search ID..."
-                               value="{{ request('id_search') }}"
-                               form="searchForm">
+                        <input type="text" class="form-control form-control-sm" name="id_search" placeholder="Search ID..." value="{{ request('id_search') }}" form="searchForm">
                     </th>
                     <th>
-                        <input type="text" 
-                               class="form-control form-control-sm" 
-                               name="name_search" 
-                               placeholder="Search name..."
-                               value="{{ request('name_search') }}"
-                               form="searchForm">
+                        <input type="text" class="form-control form-control-sm" name="name_search" placeholder="Search name..." value="{{ request('name_search') }}" form="searchForm">
                     </th>
                     <th>
-                        <input type="text" 
-                               class="form-control form-control-sm" 
-                               name="username_search" 
-                               placeholder="Search username..."
-                               value="{{ request('username_search') }}"
-                               form="searchForm">
+                        <input type="text" class="form-control form-control-sm" name="username_search" placeholder="Search username..." value="{{ request('username_search') }}" form="searchForm">
                     </th>
                     <th>
-                        <input type="text" 
-                               class="form-control form-control-sm" 
-                               name="email_search" 
-                               placeholder="Search email..."
-                               value="{{ request('email_search') }}"
-                               form="searchForm">
+                        <input type="text" class="form-control form-control-sm" name="email_search" placeholder="Search email..." value="{{ request('email_search') }}" form="searchForm">
                     </th>
                     <th>
                         <select class="form-control form-control-sm" name="role_search" form="searchForm">
@@ -63,7 +43,10 @@
                             <option value="user" {{ request('role_search') == 'user' ? 'selected' : '' }}>User</option>
                         </select>
                     </th>
-                    <th></th>
+                    <th>
+                        <button type="submit" form="searchForm" class="btn btn-sm btn-primary">Search</button>
+                        <button type="button" id="clearFilters" class="btn btn-sm btn-secondary">Clear</button>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -80,18 +63,16 @@
                     </td>
                     <td class="text-center">
                         <div class="btn-group">
-                            <!-- View Button -->
+                            <!-- View -->
                             <button class="btn btn-info btn-sm" data-toggle="modal" data-target="#userModal-{{ $user->id }}">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            
-                            <!-- Edit Button -->
+                            <!-- Edit -->
                             <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            
-                            <!-- Delete Button -->
-                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline">
+                            <!-- Delete -->
+                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
@@ -114,7 +95,7 @@
     </div>
 </div>
 
-<!-- Search Form -->
+<!-- Hidden Search Form -->
 <form id="searchForm" method="GET" action="{{ route('admin.users.index') }}" style="display: none;">
     @foreach(request()->except('page') as $key => $value)
         @if($value)
@@ -125,7 +106,7 @@
 
 <!-- User Detail Modals -->
 @foreach($users as $user)
-<div class="modal fade" id="userModal-{{ $user->id }}" tabindex="-1" role="dialog" aria-labelledby="userModalLabel-{{ $user->id }}">
+<div class="modal fade" id="userModal-{{ $user->id }}" tabindex="-1" role="dialog" aria-labelledby="userModalLabel-{{ $user->id }}" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header bg-primary">
@@ -180,17 +161,18 @@
     </div>
 </div>
 @endforeach
+@endsection
 
 @section('js')
 <script>
     $(document).ready(function() {
-        // Submit search form when any filter changes
-        $('input[name$="_search"], select[name$="_search"]').on('change', function() {
+        // Submit search on filter change
+        $('input[name$="_search"], select[name$="_search"]').on('change', function () {
             $('#searchForm').submit();
         });
 
-        // Clear search filters
-        $('#clearFilters').on('click', function() {
+        // Clear filters
+        $('#clearFilters').on('click', function () {
             $('input[name$="_search"], select[name$="_search"]').val('');
             $('#searchForm').submit();
         });
@@ -213,4 +195,20 @@
     }
 </style>
 @endsection
+
+
+@section('css')
+<style>
+    .badge {
+        font-size: 100%;
+    }
+    .table th {
+        vertical-align: middle;
+    }
+    .form-control-static {
+        padding-top: 0;
+        padding-bottom: 0;
+        min-height: auto;
+    }
+</style>
 @endsection

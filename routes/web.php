@@ -42,7 +42,7 @@ Route::get('/post', function () {
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
-    // 🏠 Home and Dashboard
+    //  Home and Dashboard
     Route::get('/home', [HomeController::class, 'index'])->name('home'); // Restore this for compatibility
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
  
@@ -54,7 +54,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/home', fn() => redirect('/dashboard'))->name('home');
     
 
-    // 🎫 Tickets
+    //  Tickets
     Route::prefix('tickets')->group(function () {
         Route::get('/', [ticketController::class, 'index'])->name('tickets');
         Route::get('/create', [ticketController::class, 'create'])->name('pages.ticket.create'); // FIXED route name
@@ -67,21 +67,21 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::resource('reqOffice', reqOfficeController::class)->except(['create']);
 
-    // 🧑‍💼 Position
+    //  Position
     Route::resource('position', PositionController::class);
     Route::get('/position', [PositionController::class, 'index'])->name('position.index');
 
-    // 👤 User Profile
+    //  User Profile
     Route::get('/profile', [UserController::class, 'showProfile'])->name('profile');
 
-    // 🔐 Admin Routes
+    //  Admin Routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', AdminUserController::class);
     });
 
-    // 📘 Reference
+    //  Reference
     Route::resource('references', ReferenceController::class);
 
-    // 📌 Status
+    //  Status
     Route::resource('status', StatusController::class);
 });

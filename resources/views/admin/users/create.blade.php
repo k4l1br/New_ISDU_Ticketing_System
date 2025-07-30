@@ -22,6 +22,17 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control @error('username') is-invalid @enderror"
+                           id="username" name="username" value="{{ old('username') }}" required>
+                    @error('username')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" class="form-control @error('email') is-invalid @enderror" 
                            id="email" name="email" value="{{ old('email') }}" required>
