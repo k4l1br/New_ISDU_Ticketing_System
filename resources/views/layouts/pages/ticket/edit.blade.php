@@ -5,13 +5,25 @@
 @section('content_header')
     <div class="row mb-2">
         <div class="col-sm-6">
-            <h1>Edit Ticket</h1>
+            <h1>
+                @if(auth()->user()->isSuperAdmin())
+                    Edit Ticket
+                @else
+                    Update Ticket Status
+                @endif
+            </h1>
         </div>
         <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
                 <li class="breadcrumb-item"><a href="{{ route('ticket.index') }}">Home</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('ticket.index') }}">Tickets</a></li>
-                <li class="breadcrumb-item active">Edit</li>
+                <li class="breadcrumb-item active">
+                    @if(auth()->user()->isSuperAdmin())
+                        Edit
+                    @else
+                        Update Status
+                    @endif
+                </li>
             </ol>
         </div>
     </div>
@@ -23,7 +35,12 @@
             <div class="card card-primary card-outline shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom-0" style="padding-bottom: 0.5rem;">
                     <h3 class="card-title mb-0 font-weight-bold text-primary" style="font-size: 1.25rem;">
-                        <i class="fas fa-edit mr-2 text-primary"></i>Edit Ticket Information
+                        <i class="fas fa-edit mr-2 text-primary"></i>
+                        @if(auth()->user()->isSuperAdmin())
+                            Edit Ticket Information
+                        @else
+                            Update Ticket Status
+                        @endif
                     </h3>
                 </div>
                 <hr class="my-0">
@@ -43,11 +60,13 @@
                             </div>
                         @endif
 
-                        <!-- Personal Information Section -->
-                        <div class="row">
-                            <div class="col-12">
-                                <h5 class="text-muted mb-3">
-                                    <i class="fas fa-user"></i> Personal Information
+                        @if(auth()->user()->isSuperAdmin())
+                            <!-- Super Admin sees full form -->
+                            <!-- Personal Information Section -->
+                            <div class="row">
+                                <div class="col-12">
+                                    <h5 class="text-muted mb-3">
+                                        <i class="fas fa-user"></i> Personal Information
                                 </h5>
                             </div>
                         </div>
@@ -271,9 +290,9 @@
                                                 class="form-control select2 @error('status') is-invalid @enderror" 
                                                 required>
                                             <option value="">Select status</option>
-                                            <option value="No Action" {{ old('status', $ticket->status) == 'No Action' ? 'selected' : '' }}>No Action</option>
-                                            <option value="In progress" {{ old('status', $ticket->status) == 'In progress' ? 'selected' : '' }}>In Progress</option>
-                                            <option value="Complete" {{ old('status', $ticket->status) == 'Complete' ? 'selected' : '' }}>Complete</option>
+                                            @foreach($statuses as $status)
+                                                <option value="{{ $status }}" {{ old('status', $ticket->status) == $status ? 'selected' : '' }}>{{ $status }}</option>
+                                            @endforeach
                                         </select>
                                         @error('status')
                                             <span class="invalid-feedback">{{ $message }}</span>
@@ -284,45 +303,136 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="unitResponsible">Unit Responsible *</label>
+                                    <label for="unitResponsible">
+                                        Unit Responsible *
+                                        @if(auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin())
+                                            <small class="text-muted">(Read-only for admin)</small>
+                                        @endif
+                                    </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-users"></i></span>
                                         </div>
-                                        <select name="unitResponsible" 
-                                                id="unitResponsible"
-                                                class="form-control select2 @error('unitResponsible') is-invalid @enderror" 
-                                                required>
-                                            <option value="">Select unit</option>
-                                            <option value="ISDU" {{ old('unitResponsible', $ticket->unitResponsible) == 'ISDU (INFORMATION SYSTEMS DEVELOPMENT UNIT)' ? 'selected' : '' }}>ISDU (INFORMATION SYSTEMS DEVELOPMENT UNIT)</option>
-                                            <option value="NMU" {{ old('unitResponsible', $ticket->unitResponsible) == 'NMU (NETWORK MANAGEMENT UNIT)' ? 'selected' : '' }}>NMU (NETWORK MANAGEMENT UNIT)</option>
-                                            <option value="REPAIR" {{ old('unitResponsible', $ticket->unitResponsible) == 'REPAIR' ? 'selected' : '' }}>REPAIR</option>
-                                            <option value="MANAGEMENT" {{ old('unitResponsible', $ticket->unitResponsible) == 'MB (MANAGEMENT BRANCH)' ? 'selected' : '' }}>MB (MANAGEMENT BRANCH)</option>
-                                            @if(!in_array(old('unitResponsible', $ticket->unitResponsible), ['ISDU (INFORMATION SYSTEMS DEVELOPMENT UNIT)','NMU (NETWORK MANAGEMENT UNIT)','REPAIR','MB (MANAGEMENT BRANCH)']))
-                                                <option value="{{ old('unitResponsible', $ticket->unitResponsible) }}" selected>{{ old('unitResponsible', $ticket->unitResponsible) }}</option>
-                                            @endif
-                                        </select>
+                                        @if(auth()->user()->isSuperAdmin())
+                                            <select name="unitResponsible" 
+                                                    id="unitResponsible"
+                                                    class="form-control select2 @error('unitResponsible') is-invalid @enderror" 
+                                                    required>
+                                                <option value="">Select unit</option>
+                                                @if(isset($availableUnits) && count($availableUnits))
+                                                    @foreach($availableUnits as $unit)
+                                                        <option value="{{ $unit }}" {{ old('unitResponsible', $ticket->unitResponsible) == $unit ? 'selected' : '' }}>
+                                                            {{ $unit }}
+                                                        </option>
+                                                    @endforeach
+                                                @else
+                                                    <!-- Fallback to static options if no admin users exist yet -->
+                                                    <option value="ISDU" {{ old('unitResponsible', $ticket->unitResponsible) == 'ISDU' ? 'selected' : '' }}>ISDU</option>
+                                                    <option value="NMU" {{ old('unitResponsible', $ticket->unitResponsible) == 'NMU' ? 'selected' : '' }}>NMU</option>
+                                                    <option value="REPAIR" {{ old('unitResponsible', $ticket->unitResponsible) == 'REPAIR' ? 'selected' : '' }}>REPAIR</option>
+                                                    <option value="MB" {{ old('unitResponsible', $ticket->unitResponsible) == 'MB' ? 'selected' : '' }}>MB</option>
+                                                @endif
+                                                <!-- Include current value if it doesn't match available units -->
+                                                @if(isset($availableUnits) && !in_array(old('unitResponsible', $ticket->unitResponsible), $availableUnits) && old('unitResponsible', $ticket->unitResponsible))
+                                                    <option value="{{ old('unitResponsible', $ticket->unitResponsible) }}" selected>{{ old('unitResponsible', $ticket->unitResponsible) }}</option>
+                                                @endif
+                                            </select>
+                                        @else
+                                            <input type="text" 
+                                                   name="unitResponsible_display" 
+                                                   class="form-control" 
+                                                   value="{{ $ticket->unitResponsible }}" 
+                                                   readonly
+                                                   style="background-color: #f8f9fa;">
+                                            <input type="hidden" name="unitResponsible" value="{{ $ticket->unitResponsible }}">
+                                        @endif
                                         @error('unitResponsible')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
                                     </div>
+                                    @if(auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin())
+                                        <small class="text-info">
+                                            <i class="fas fa-info-circle"></i> 
+                                            Only super admins can change unit assignments
+                                        </small>
+                                    @endif
                                 </div>
                             </div>
                         </div>
+                        
+                        @else
+                            <!-- Admin sees only ticket info and status update -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <h5><i class="fas fa-info-circle"></i> Ticket Information</h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <strong>Requestor:</strong> {{ $ticket->fullName }}<br>
+                                                <strong>Position:</strong> {{ $ticket->position }}<br>
+                                                <strong>Office:</strong> {{ $ticket->reqOffice }}
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Contact:</strong> {{ $ticket->contactNumber }}<br>
+                                                <strong>Email:</strong> {{ $ticket->emailAddress }}<br>
+                                                <strong>Unit:</strong> {{ $ticket->unitResponsible }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Status Update Section for Admin -->
+                            <div class="row">
+                                <div class="col-md-6 mx-auto">
+                                    <div class="form-group">
+                                        <label for="status">Update Status *</label>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><i class="fas fa-flag"></i></span>
+                                            </div>
+                                            <select name="status" 
+                                                    id="status"
+                                                    class="form-control select2 @error('status') is-invalid @enderror" 
+                                                    required>
+                                                <option value="">Select status</option>
+                                                @foreach($statuses as $status)
+                                                    <option value="{{ $status }}" {{ old('status', $ticket->status) == $status ? 'selected' : '' }}>{{ $status }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('status')
+                                                <span class="invalid-feedback">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-info-circle"></i> 
+                                            You can only update the ticket status
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="card-footer">
                         <div class="row">
                             <div class="col-12">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Update Ticket
+                                    <i class="fas fa-save"></i> 
+                                    @if(auth()->user()->isSuperAdmin())
+                                        Update Ticket
+                                    @else
+                                        Update Status
+                                    @endif
                                 </button>
-                                <a href="{{ route('ticket.index') }}" class="btn btn-secondary">
+                                <a href="{{ auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin() ? route('tickets.my') : route('ticket.index') }}" class="btn btn-secondary">
                                     <i class="fas fa-times"></i> Cancel
                                 </a>
-                                <button type="reset" class="btn btn-outline-secondary float-right">
-                                    <i class="fas fa-redo"></i> Reset Form
-                                </button>
+                                @if(auth()->user()->isSuperAdmin())
+                                    <button type="reset" class="btn btn-outline-secondary float-right">
+                                        <i class="fas fa-redo"></i> Reset Form
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>

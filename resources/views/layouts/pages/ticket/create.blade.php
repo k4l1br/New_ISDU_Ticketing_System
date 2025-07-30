@@ -292,7 +292,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="unitResponsible">
-                                        Unit Responsible *
+                                        Assign to Admin *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -302,12 +302,17 @@
                                                 id="unitResponsible"
                                                 class="form-control select2 @error('unitResponsible') is-invalid @enderror" 
                                                 required>
-                                            <option value="">Select unit</option>
-                                            <option value="ISDU" {{ old('unitResponsible') == 'ISDU (INFORMATION SYSTEMS DEVELOPMENT UNIT)' ? 'selected' : '' }}>ISDU (INFORMATION SYSTEMS DEVELOPMENT UNIT)</option>
-                                            <option value="NMU" {{ old('unitResponsible') == 'NMU (NETWORK MANAGEMENT UNIT)' ? 'selected' : '' }}>NMU (NETWORK MANAGEMENT UNIT)</option>
-                                            <option value="REPAIR" {{ old('unitResponsible') == 'REPAIR' ? 'selected' : '' }}>REPAIR</option>
-                                            <option value="MANAGEMENT" {{ old('unitResponsible') == 'MB (MANAGEMENT BRANCH)' ? 'selected' : '' }}>MB (MANAGEMENT BRANCH)</option>
-                                        
+                                            <option value="">Select admin user</option>
+                                            
+                                            @if(isset($adminUsers) && count($adminUsers))
+                                                @foreach($adminUsers as $admin)
+                                                    <option value="{{ $admin['name'] }}" {{ old('unitResponsible') == $admin['name'] ? 'selected' : '' }}>
+                                                        {{ $admin['name'] }}{{ $admin['unit'] ? ' (' . $admin['unit'] . ')' : '' }}
+                                                    </option>
+                                                @endforeach
+                                            @else
+                                                <option disabled>No admin users available</option>
+                                            @endif
                                         </select>
                                         @error('unitResponsible')
                                             <span class="invalid-feedback">{{ $message }}</span>

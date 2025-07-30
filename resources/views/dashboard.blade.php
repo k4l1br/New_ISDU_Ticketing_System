@@ -15,7 +15,7 @@
             <span class="info-box-icon"><i class="fas fa-clock"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">In Progress</span>
-                <span class="info-box-number" id="in_progress_count">0</span>
+                <span class="info-box-number" id="in_progress_count">{{ $data['in_progress'] ?? 0 }}</span>
                 <div class="progress">
                     <div class="progress-bar" id="in_progress_progress"></div>
                 </div>
@@ -27,7 +27,7 @@
             <span class="info-box-icon"><i class="fas fa-thumbs-up"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">No Action</span>
-                <span class="info-box-number" id="no_action_count">0</span>
+                <span class="info-box-number" id="no_action_count">{{ $data['no_action'] ?? 0 }}</span>
                 <div class="progress">
                     <div class="progress-bar" id="no_action_progress"></div>
                 </div>
@@ -39,7 +39,7 @@
             <span class="info-box-icon"><i class="fas fa-flag"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Completed</span>
-                <span class="info-box-number" id="completed_count">0</span>
+                <span class="info-box-number" id="completed_count">{{ $data['completed'] ?? 0 }}</span>
                 <div class="progress">
                     <div class="progress-bar" id="completed_progress"></div>
                 </div>
@@ -77,14 +77,14 @@
     </div>
 </div>
 
-<!-- Tickets per Unit -->
+<!-- Tickets per Admin User -->
 <div class="card mt-4">
-    <div class="card-header">Tickets per Unit</div>
+    <div class="card-header">Tickets per Admin User</div>
     <div class="card-body" style="min-height: 340px; max-height: 500px; overflow-y: auto;">
         <table id="perUnitTable" class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Unit Responsible</th>
+                    <th>Assigned Admin</th>
                     <th>In Progress</th>
                     <th>No Action</th>
                     <th>Completed</th>
@@ -105,6 +105,11 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
 <script>
+// Pass PHP data to JavaScript
+window.dashboardData = {!! json_encode($data) !!};
+</script>
+
+<script>
 let pieChart, taskLineChart, perUnitTable;
 
 function updateProgressBars(total) {
@@ -116,14 +121,21 @@ function updateProgressBars(total) {
 }
 
 function initCharts() {
+    // Get initial data from server-side
     const pieCtx = document.getElementById('ticketPieChart').getContext('2d');
-    const total = ($('#in_progress_count').text()*1) + ($('#no_action_count').text()*1) + ($('#completed_count').text()*1);
+    const inProgress = window.dashboardData.in_progress || 0;
+    const noAction = window.dashboardData.no_action || 0;
+    const completed = window.dashboardData.completed || 0;
+    const total = inProgress + noAction + completed;
+    
+    document.getElementById('totalTickets').textContent = total + ' Total';
+    
     pieChart = new Chart(pieCtx, {
         type: 'pie',
         data: {
             labels: ['In Progress', 'No Action', 'Completed'],
             datasets: [{
-                data: [$('#in_progress_count').text(), $('#no_action_count').text(), $('#completed_count').text()],
+                data: [inProgress, noAction, completed],
                 backgroundColor: ['#ffc107', '#17a2b8', '#28a745'],
                 borderWidth: 1
             }]
@@ -137,7 +149,7 @@ function initCharts() {
                         label: function(context) {
                             const label = context.label || '';
                             const value = context.raw || 0;
-                            const percentage = Math.round((value / total) * 100);
+                            const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
                             return `${label}: ${value} (${percentage}%)`;
                         }
                     }
@@ -217,7 +229,7 @@ function initPerUnitTable() {
             }
         },
         columns: [
-            { data: 'unit' },
+            { data: 'unit', title: 'Assigned Admin' },
             { data: 'in_progress', className: 'text-center' },
             { data: 'no_action', className: 'text-center' },
             { data: 'completed', className: 'text-center' },

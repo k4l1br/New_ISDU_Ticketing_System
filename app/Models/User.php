@@ -10,18 +10,16 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    // Define role constants
+    const ROLE_SUPER_ADMIN = 'super_admin';
+    const ROLE_ADMIN = 'admin';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-   protected $fillable = [
-    'name',
-    'username', // ✅ must be here
-    'email',
-    'password',
-    'role',
-];
+
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -37,8 +35,5 @@ class User extends Authenticatable
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+
 }

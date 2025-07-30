@@ -39,10 +39,17 @@
                         Tickets List
                     </h3>
                     <div class="card-tools">
-                        <a href="{{ route('pages.ticket.create') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus mr-1"></i>
-                            Create New Ticket
-                        </a>
+                        @if(auth()->user()->isSuperAdmin())
+                            <a href="{{ route('ticket.create') }}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus mr-1"></i>
+                                Create New Ticket
+                            </a>
+                        @else
+                            <span class="badge badge-info">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                {{ $tickets->count() }} tickets assigned to your unit
+                            </span>
+                        @endif
                     </div>
                 </div>
                 <div class="card-body">
@@ -72,17 +79,17 @@
                         <table id="tickets-table" class="table table-bordered table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th><i class="fas fa-user mr-1"></i>Full Name</th>
-                                    <th><i class="fas fa-briefcase mr-1"></i>Position</th>
-                                    <th><i class="fas fa-id-badge mr-1"></i>Designation</th>
-                                    <th><i class="fas fa-phone mr-1"></i>Contact</th>
-                                    <th><i class="fas fa-envelope mr-1"></i>Email</th>
-                                    <th><i class="fas fa-building mr-1"></i>Office</th>
-                                    <th><i class="fas fa-hashtag mr-1"></i>Reference</th>
-                                    <th><i class="fas fa-gavel mr-1"></i>Authority</th>
-                                    <th><i class="fas fa-flag mr-1"></i>Status</th>
-                                    <th><i class="fas fa-users mr-1"></i>Unit Responsible</th>
-                                    <th><i class="fas fa-cogs mr-1"></i>Actions</th>
+                                    <th>Full Name</th>
+                                    <th>Position</th>
+                                    <th>Designation</th>
+                                    <th>Contact</th>
+                                    <th>Email</th>
+                                    <th>Office</th>
+                                    <th>Reference</th>
+                                    <th>Authority</th>
+                                    <th>Status</th>
+                                    <th>Unit Responsible</th>
+                                    <th>Actions</th>
                                 </tr>
                                 <tr class="filters">
                                     <th><input type="text" class="form-control form-control-sm column-search" placeholder="Search..."></th>
@@ -111,12 +118,12 @@
                                         <td>{{ $ticket->designation }}</td>
                                         <td>
                                             <a href="tel:{{ $ticket->contactNumber }}" class="text-decoration-none">
-                                                <i class="fas fa-phone-alt mr-1"></i>{{ $ticket->contactNumber }}
+                                               {{ $ticket->contactNumber }}
                                             </a>
                                         </td>
                                         <td>
                                             <a href="mailto:{{ $ticket->emailAddress }}" class="text-decoration-none">
-                                                <i class="fas fa-envelope mr-1"></i>{{ $ticket->emailAddress }}
+                                                {{ $ticket->emailAddress }}
                                             </a>
                                         </td>
                                         <td>{{ $ticket->reqOffice }}</td>
@@ -150,8 +157,8 @@
                                             <div class="btn-group" role="group">
                                                 <a href="{{ route('ticket.edit', $ticket->id) }}" 
                                                 class="btn btn-sm btn-warning" 
-                                                title="Edit Ticket">
-                                                    <i class="fas fa-edit"></i>
+                                                title="@if(auth()->user()->isSuperAdmin()) Edit Ticket @else Update Status @endif">
+                                                    <i class="fas fa-@if(auth()->user()->isSuperAdmin()) edit @else sync-alt @endif"></i>
                                                 </a>
                                                 <button type="button" 
                                                         class="btn btn-sm btn-info" 
@@ -160,6 +167,7 @@
                                                         title="View Details">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
+                                                @if(auth()->user()->isSuperAdmin())
                                                 <form action="{{ route('ticket.destroy', $ticket->id) }}" 
                                                     method="POST" 
                                                     style="display:inline;" 
@@ -172,6 +180,7 @@
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -233,7 +242,11 @@
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                                     <a href="{{ route('ticket.edit', $ticket->id) }}" class="btn btn-warning">
-                                                        <i class="fas fa-edit mr-1"></i>Edit
+                                                        @if(auth()->user()->isSuperAdmin())
+                                                            <i class="fas fa-edit mr-1"></i>Edit
+                                                        @else
+                                                            <i class="fas fa-sync-alt mr-1"></i>Update Status
+                                                        @endif
                                                     </a>
                                                 </div>
                                             </div>

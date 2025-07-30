@@ -332,8 +332,8 @@ return [
             'text' => 'Tickets',
             'url' => '/tickets',
             'icon' => 'far fa-fw fa-file',
-            // 'label' => 4,
             'label_color' => 'success',
+            'can' => ['admin', 'super_admin'],
         ],
 
 
@@ -352,18 +352,17 @@ return [
         [
             'text' => 'Administrator',
             'icon' => 'fas fa-user-cog',
+            'can' => 'super_admin',
             'submenu' => [
                 [
                     'text' => 'Users',
                     'url' => 'admin/users',
                     'icon' => 'fas fa-fw fa-users',
-                    // This points to the reqOfficeController@index and views/reqOffice/index.blade.php
                 ],
                  [
                     'text' => 'Add Requesting Office',
                     'url' => 'reqOffice',
                     'icon' => 'fas fa-building',
-                    // This points to the reqOfficeController@index and views/reqOffice/index.blade.php
                 ],
                 [
                     'text' => 'Add Positions',
@@ -425,6 +424,7 @@ return [
         JeroenNoten\LaravelAdminLte\Menu\Filters\ClassesFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\LangFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\DataFilter::class,
+        App\Menu\Filters\RoleFilter::class,
     ],
 
     /*
