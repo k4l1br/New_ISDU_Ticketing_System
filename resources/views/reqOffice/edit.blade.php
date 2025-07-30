@@ -14,7 +14,7 @@
             @method('PUT')
             <div class="form-group">
                 <label for="reqOffice">Requesting Office Name</label>
-                <input type="text" name="reqOffice" class="form-control" id="reqOffice" value="{{ $office->reqOffice }}" required>
+                <input type="text" name="reqOffice" class="form-control" id="reqOffice" value="{{ $office->req_office }}" required>
             </div>
             <button type="submit" class="btn btn-success">Update Office</button>
             <a href="{{ route('reqOffice.index') }}" class="btn btn-secondary">Cancel</a>

@@ -8,15 +8,16 @@ class ticket extends Model
 {
 
     protected $fillable = [
-        'fullName',
+        'full_name',
         'position',
         'designation',
-        'contactNumber',
-        'emailAddress',
-        'reqOffice',
+        'contact_number',
+        'email_address',
+        'req_office',
         'reference',
         'authority',
         'status',
         'unitResponsible',
+        'description',
     ];
 }
