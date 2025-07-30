@@ -6,17 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('req_offices', function (Blueprint $table) {
-            $table->id();
-            $table->string('req_office', 45);
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            //
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('req_offices');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };
