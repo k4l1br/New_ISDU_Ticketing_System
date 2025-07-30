@@ -25,9 +25,13 @@ class reqOfficeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'reqOffice' => 'required|string|max:255|unique:req_offices,reqOffice',
+            'reqOffice' => 'required|string|max:255|unique:req_offices,req_office',
         ]);
-        reqOffice::create($request->all());
+        // Map camelCase input to snake_case for DB
+        $data = [
+            'req_office' => $request->input('reqOffice'),
+        ];
+        reqOffice::create($data);
         return redirect()->route('reqOffice.index')->with('success', 'Requesting Office created successfully.');
     }
 
@@ -49,10 +53,13 @@ class reqOfficeController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'reqOffice' => 'required|string|max:255|unique:req_offices,reqOffice,' . $id,
+            'reqOffice' => 'required|string|max:255|unique:req_offices,req_office,' . $id,
         ]);
         $office = reqOffice::findOrFail($id);
-        $office->update($request->all());
+        $data = [
+            'req_office' => $request->input('reqOffice'),
+        ];
+        $office->update($data);
         return redirect()->route('reqOffice.index')->with('success', 'Requesting Office updated successfully.');
     }
 

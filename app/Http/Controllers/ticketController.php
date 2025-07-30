@@ -50,7 +50,7 @@ class ticketController extends Controller
         }
         
         $positions = \App\Models\positionModel::orderBy('name')->pluck('name');
-        $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice');
+        $reqOffices = reqOffice::orderBy('req_office')->pluck('req_office');
         $references = Reference::orderBy('reference_type')->pluck('reference_type', 'id');
         $statuses = \App\Models\Status::orderBy('name')->pluck('name');
         
@@ -89,6 +89,7 @@ class ticketController extends Controller
             'authority' => 'required|string|max:255',
             'status' => 'required|string|max:255',
             'unitResponsible' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
         // If 'Others' is selected in reqOffice, use the custom value
@@ -103,7 +104,22 @@ class ticketController extends Controller
             }
         }
 
-        Ticket::create($validated);
+        // Map camelCase form field names to snake_case database column names
+        $ticketData = [
+            'full_name' => $validated['fullName'],
+            'position' => $validated['position'],
+            'designation' => $validated['designation'],
+            'contact_number' => $validated['contactNumber'],
+            'email_address' => $validated['emailAddress'],
+            'req_office' => $validated['reqOffice'],
+            'reference' => $validated['reference'],
+            'authority' => $validated['authority'],
+            'status' => $validated['status'],
+            'unitResponsible' => $validated['unitResponsible'],
+            'description' => $validated['description'] ?? null,
+        ];
+
+        Ticket::create($ticketData);
 
         return redirect()->route('ticket.index')->with('success', 'Ticket created successfully.');
     }
@@ -140,7 +156,7 @@ class ticketController extends Controller
         }
         
         $positions = \App\Models\positionModel::orderBy('name')->pluck('name')->toArray();
-        $reqOffices = reqOffice::orderBy('reqOffice')->pluck('reqOffice')->toArray();
+        $reqOffices = reqOffice::orderBy('req_office')->pluck('req_office')->toArray();
         $references = Reference::orderBy('reference_type')->pluck('reference_type', 'id');
         $statuses = \App\Models\Status::orderBy('name')->pluck('name');
         

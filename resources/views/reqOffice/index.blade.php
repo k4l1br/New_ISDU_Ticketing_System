@@ -53,7 +53,7 @@
                     @forelse($offices as $office)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $office->reqOffice }}</td>
+                            <td>{{ $office->req_office }}</td>
                             <td>
                                 <a href="{{ route('reqOffice.edit', $office->id) }}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit"></i>

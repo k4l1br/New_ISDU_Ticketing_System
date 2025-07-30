@@ -321,6 +321,38 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Description Section -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="text-muted mb-3">
+                                    <i class="fas fa-file-alt"></i> Additional Information
+                                </h5>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="description">
+                                        Description
+                                    </label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-file-alt"></i></span>
+                                        </div>
+                                        <textarea name="description" 
+                                                id="description"
+                                                class="form-control @error('description') is-invalid @enderror" 
+                                                rows="4"
+                                                placeholder="Enter additional details about the ticket...">{{ old('description') }}</textarea>
+                                        @error('description')
+                                            <span class="invalid-feedback">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-footer">
