@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('req_offices', function (Blueprint $table) {
-            $table->id();
-            $table->string('reqOffice')->unique();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            //
         });
     }
 
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('req_offices');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };

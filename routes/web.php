@@ -1,16 +1,21 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ticketController;
 use App\Http\Controllers\reqOfficeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ReferenceController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use App\Models\ticket;
+use App\Http\Controllers\StatusController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 
-// Redirect Root to Login
+// Redirect root to login
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -33,6 +38,21 @@ Route::get('post', function () {
 if (method_exists(Auth::class, 'routes')) {
     Auth::routes();
 }
+
+// Public route
+Route::get('/post', function () {
+    return view('post');
+});
+
+ Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    
+    // Registration routes (optional)
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
+});
+
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {

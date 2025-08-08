@@ -1,0 +1,55 @@
+[33mfd583ef[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmvallega[m[33m, [m[1;31morigin/mvallega[m[33m, [m[1;32mbackup-before-reset-2[m[33m, [m[1;32mbackup-before-reset[m[33m)[m HEAD@{0}: checkout: moving from backup-before-reset to mvallega
+[33mfd583ef[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmvallega[m[33m, [m[1;31morigin/mvallega[m[33m, [m[1;32mbackup-before-reset-2[m[33m, [m[1;32mbackup-before-reset[m[33m)[m HEAD@{1}: checkout: moving from mvallega to backup-before-reset
+[33mfd583ef[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmvallega[m[33m, [m[1;31morigin/mvallega[m[33m, [m[1;32mbackup-before-reset-2[m[33m, [m[1;32mbackup-before-reset[m[33m)[m HEAD@{2}: checkout: moving from master to mvallega
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{3}: checkout: moving from mvallega to master
+[33mfd583ef[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmvallega[m[33m, [m[1;31morigin/mvallega[m[33m, [m[1;32mbackup-before-reset-2[m[33m, [m[1;32mbackup-before-reset[m[33m)[m HEAD@{4}: reset: moving to HEAD
+[33mfd583ef[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmvallega[m[33m, [m[1;31morigin/mvallega[m[33m, [m[1;32mbackup-before-reset-2[m[33m, [m[1;32mbackup-before-reset[m[33m)[m HEAD@{5}: reset: moving to HEAD
+[33mfd583ef[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmvallega[m[33m, [m[1;31morigin/mvallega[m[33m, [m[1;32mbackup-before-reset-2[m[33m, [m[1;32mbackup-before-reset[m[33m)[m HEAD@{6}: pull: Fast-forward
+[33mb5a3ba9[m HEAD@{7}: reset: moving to HEAD
+[33mb5a3ba9[m HEAD@{8}: reset: moving to HEAD
+[33mb5a3ba9[m HEAD@{9}: reset: moving to HEAD
+[33mb5a3ba9[m HEAD@{10}: commit: user login
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{11}: checkout: moving from master to mvallega
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{12}: reset: moving to HEAD
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{13}: checkout: moving from mel-feature-login to master
+[33m339d864[m[33m ([m[1;32mmel-feature-login[m[33m)[m HEAD@{14}: checkout: moving from master to mel-feature-login
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{15}: checkout: moving from mel to master
+[33mb31ae7d[m[33m ([m[1;31morigin/mel[m[33m, [m[1;32mmel[m[33m)[m HEAD@{16}: reset: moving to HEAD
+[33mb31ae7d[m[33m ([m[1;31morigin/mel[m[33m, [m[1;32mmel[m[33m)[m HEAD@{17}: checkout: moving from master to mel
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{18}: checkout: moving from mel to master
+[33mb31ae7d[m[33m ([m[1;31morigin/mel[m[33m, [m[1;32mmel[m[33m)[m HEAD@{19}: checkout: moving from master to mel
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{20}: reset: moving to HEAD
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{21}: reset: moving to HEAD
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{22}: commit: login
+[33m64b739d[m HEAD@{23}: reset: moving to HEAD
+[33m64b739d[m HEAD@{24}: commit: Login
+[33m339d864[m[33m ([m[1;32mmel-feature-login[m[33m)[m HEAD@{25}: checkout: moving from mel-feature-login to master
+[33m339d864[m[33m ([m[1;32mmel-feature-login[m[33m)[m HEAD@{26}: checkout: moving from master to mel-feature-login
+[33m339d864[m[33m ([m[1;32mmel-feature-login[m[33m)[m HEAD@{27}: pull: Fast-forward
+[33m436721b[m HEAD@{28}: reset: moving to HEAD
+[33m436721b[m HEAD@{29}: pull: Fast-forward
+[33m53b674f[m HEAD@{30}: commit: user
+[33m57132d2[m HEAD@{31}: commit (merge): user
+[33m793f583[m[33m ([m[1;32mcheckout[m[33m)[m HEAD@{32}: checkout: moving from mel to master
+[33mb31ae7d[m[33m ([m[1;31morigin/mel[m[33m, [m[1;32mmel[m[33m)[m HEAD@{33}: commit: user
+[33mee2e984[m HEAD@{34}: commit: user
+[33m260dbf0[m HEAD@{35}: commit: user
+[33m5727d0a[m HEAD@{36}: commit: user
+[33m61b6a21[m HEAD@{37}: commit: user
+[33m8bbd3b9[m HEAD@{38}: commit: user
+[33mf4b89b3[m HEAD@{39}: commit: user
+[33me0bd07d[m HEAD@{40}: commit: user
+[33mfd40527[m HEAD@{41}: commit: user
+[33mb7654b0[m HEAD@{42}: commit: user
+[33ma0a35e8[m HEAD@{43}: commit: user
+[33m6c1b59f[m HEAD@{44}: checkout: moving from master to mel
+[33m793f583[m[33m ([m[1;32mcheckout[m[33m)[m HEAD@{45}: checkout: moving from mel to master
+[33m6c1b59f[m HEAD@{46}: commit: message
+[33m793f583[m[33m ([m[1;32mcheckout[m[33m)[m HEAD@{47}: checkout: moving from master to mel
+[33m793f583[m[33m ([m[1;32mcheckout[m[33m)[m HEAD@{48}: reset: moving to 793f583
+[33me5ef988[m HEAD@{49}: reset: moving to origin/master
+[33m793f583[m[33m ([m[1;32mcheckout[m[33m)[m HEAD@{50}: rebase (abort): returning to refs/heads/master
+[33me5ef988[m HEAD@{51}: pull --rebase origin master (start): checkout e5ef988621a8e5d684c22dc683c1609cbbdab158
+[33m793f583[m[33m ([m[1;32mcheckout[m[33m)[m HEAD@{52}: commit: My local work
+[33mc98971c[m HEAD@{53}: commit: My work before merging
+[33m4ec65f1[m HEAD@{54}: clone: from https://github.com/k4l1br/New_ISDU_Ticketing_System.git
