@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Assets Verification</title>
+    <link rel="stylesheet" href="css/datatables.bootstrap4.min.css">
+    <link rel="stylesheet" href="css/datatables.buttons.bootstrap4.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .status { padding: 10px; margin: 5px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        table { width: 100%; margin-top: 20px; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Local Assets Verification</h1>
+    <p>This page verifies that all local assets are loading correctly for offline operation.</p>
+    
+    <div id="status-container">
+        <div class="status success">✅ HTML and CSS loaded successfully</div>
+    </div>
+
+    <table id="test-table" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Asset</th>
+                <th>Status</th>
+                <th>Size (approx)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td>jQuery</td><td id="jquery-status">Loading...</td><td>85KB</td></tr>
+            <tr><td>Chart.js</td><td id="chartjs-status">Loading...</td><td>184KB</td></tr>
+            <tr><td>DataTables Core</td><td id="datatables-status">Loading...</td><td>120KB</td></tr>
+            <tr><td>DataTables Bootstrap</td><td id="dt-bootstrap-status">Loading...</td><td>8KB</td></tr>
+            <tr><td>DataTables Buttons</td><td id="dt-buttons-status">Loading...</td><td>25KB</td></tr>
+            <tr><td>JSZip</td><td id="jszip-status">Loading...</td><td>110KB</td></tr>
+            <tr><td>PDFMake</td><td id="pdfmake-status">Loading...</td><td>500KB</td></tr>
+            <tr><td>Export Functionality</td><td id="export-status">Loading...</td><td>15KB</td></tr>
+        </tbody>
+    </table>
+
+    <div id="final-status" style="margin-top: 20px; font-weight: bold;"></div>
+
+    <!-- Load all local assets -->
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/chart.min.js"></script>
+    <script src="js/datatables/jquery.dataTables.min.js"></script>
+    <script src="js/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="js/datatables/dataTables.buttons.min.js"></script>
+    <script src="js/datatables/buttons.bootstrap4.min.js"></script>
+    <script src="js/export/jszip.min.js"></script>
+    <script src="js/export/pdfmake.min.js"></script>
+    <script src="js/export/vfs_fonts.js"></script>
+    <script src="js/datatables/buttons.html5.min.js"></script>
+    <script src="js/datatables/buttons.print.min.js"></script>
+
+    <script>
+        // Verification script
+        $(document).ready(function() {
+            const statusContainer = document.getElementById('status-container');
+            
+            // Check jQuery
+            if (typeof $ !== 'undefined') {
+                document.getElementById('jquery-status').innerHTML = '<span style="color: green;">✅ Loaded</span>';
+                statusContainer.innerHTML += '<div class="status success">✅ jQuery loaded successfully</div>';
+            } else {
+                document.getElementById('jquery-status').innerHTML = '<span style="color: red;">❌ Failed</span>';
+                statusContainer.innerHTML += '<div class="status error">❌ jQuery failed to load</div>';
+            }
+
+            // Check Chart.js
+            if (typeof Chart !== 'undefined') {
+                document.getElementById('chartjs-status').innerHTML = '<span style="color: green;">✅ Loaded</span>';
+                statusContainer.innerHTML += '<div class="status success">✅ Chart.js loaded successfully (Dashboard charts ready)</div>';
+            } else {
+                document.getElementById('chartjs-status').innerHTML = '<span style="color: red;">❌ Failed</span>';
+                statusContainer.innerHTML += '<div class="status error">❌ Chart.js failed to load</div>';
+            }
+
+            // Check DataTables
+            if (typeof $.fn.DataTable !== 'undefined') {
+                document.getElementById('datatables-status').innerHTML = '<span style="color: green;">✅ Loaded</span>';
+                document.getElementById('dt-bootstrap-status').innerHTML = '<span style="color: green;">✅ Loaded</span>';
+                statusContainer.innerHTML += '<div class="status success">✅ DataTables loaded successfully</div>';
+                
+                // Initialize DataTable to test functionality
+                try {
+                    $('#test-table').DataTable({
+                        dom: 'Bfrtip',
+                        buttons: ['excel', 'pdf', 'print'],
+                        pageLength: 5
+                    });
+                    document.getElementById('dt-buttons-status').innerHTML = '<span style="color: green;">✅ Loaded</span>';
+                    document.getElementById('export-status').innerHTML = '<span style="color: green;">✅ Working</span>';
+                    statusContainer.innerHTML += '<div class="status success">✅ DataTables with export buttons working</div>';
+                } catch (e) {
+                    document.getElementById('dt-buttons-status').innerHTML = '<span style="color: red;">❌ Failed</span>';
+                    statusContainer.innerHTML += '<div class="status error">❌ DataTables buttons failed: ' + e.message + '</div>';
+                }
+            } else {
+                document.getElementById('datatables-status').innerHTML = '<span style="color: red;">❌ Failed</span>';
+                statusContainer.innerHTML += '<div class="status error">❌ DataTables failed to load</div>';
+            }
+
+            // Check JSZip
+            if (typeof JSZip !== 'undefined') {
+                document.getElementById('jszip-status').innerHTML = '<span style="color: green;">✅ Loaded</span>';
+                statusContainer.innerHTML += '<div class="status success">✅ JSZip loaded (Excel export ready)</div>';
+            } else {
+                document.getElementById('jszip-status').innerHTML = '<span style="color: red;">❌ Failed</span>';
+                statusContainer.innerHTML += '<div class="status error">❌ JSZip failed to load</div>';
+            }
+
+            // Check PDFMake
+            if (typeof pdfMake !== 'undefined') {
+                document.getElementById('pdfmake-status').innerHTML = '<span style="color: green;">✅ Loaded</span>';
+                statusContainer.innerHTML += '<div class="status success">✅ PDFMake loaded (PDF export ready)</div>';
+            } else {
+                document.getElementById('pdfmake-status').innerHTML = '<span style="color: red;">❌ Failed</span>';
+                statusContainer.innerHTML += '<div class="status error">❌ PDFMake failed to load</div>';
+            }
+
+            // Final status
+            const errors = document.querySelectorAll('.error').length;
+            const finalStatus = document.getElementById('final-status');
+            
+            if (errors === 0) {
+                finalStatus.innerHTML = '<div class="status success">🎉 ALL ASSETS LOADED SUCCESSFULLY - SYSTEM IS READY FOR OFFLINE USE!</div>';
+            } else {
+                finalStatus.innerHTML = '<div class="status error">⚠️ ' + errors + ' asset(s) failed to load. Check the assets directory.</div>';
+            }
+        });
+    </script>
+</body>
+</html>

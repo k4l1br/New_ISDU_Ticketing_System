@@ -12,13 +12,13 @@ class reqOfficeController extends Controller
     public function index()
     {
         $offices = reqOffice::all();
-        return view('reqOffice.index', compact('offices'));
+        return view('superadmin.reqOffice.index', compact('offices'));
     }
 
     // Show the form for creating a new resource.
     public function create()
     {
-        return view('reqOffice.create');
+        return view('superadmin.reqOffice.create');
     }
 
     // Store a newly created resource in storage.
@@ -35,14 +35,14 @@ class reqOfficeController extends Controller
     public function show($id)
     {
         $office = reqOffice::findOrFail($id);
-        return view('reqOffice.show', compact('office'));
+        return view('superadmin.reqOffice.show', compact('office'));
     }
 
     // Show the form for editing the specified resource.
     public function edit($id)
     {
         $office = reqOffice::findOrFail($id);
-        return view('reqOffice.edit', compact('office'));
+        return view('superadmin.reqOffice.edit', compact('office'));
     }
 
     // Update the specified resource in storage.

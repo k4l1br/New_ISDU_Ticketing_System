@@ -257,7 +257,7 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'dashboard_url' => 'dashboard',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -301,21 +301,14 @@ return [
 
     'menu' => [
         // Navbar items:
-        [
-            'type' => 'navbar-search',
-            'text' => 'search',
-            'topnav_right' => true,
-        ],
+    
         [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
 
         // Sidebar items:
-        [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
-        ],
+   
         [
             'text' => 'blog',
             'url' => 'admin/blog',
@@ -330,7 +323,7 @@ return [
 
          [
             'text' => 'Tickets',
-            'url' => '/tickets',
+            'url'  => '/tickets',
             'icon' => 'far fa-fw fa-file',
             'label_color' => 'success',
             'can' => ['admin', 'super_admin'],
@@ -345,45 +338,41 @@ return [
             'icon' => 'fas fa-fw fa-user',
         ],
         [
-             'text' => 'Password Change',
-            'url'  => 'password/edit',  // or @route('password.edit') in Blade
-            'icon' => 'fas fa-fw fa-lock',
-        ],
-        [
             'text' => 'Administrator',
             'icon' => 'fas fa-user-cog',
             'can' => 'super_admin',
             'submenu' => [
                 [
-                    'text' => 'Users',
+                    'text' => 'Manage Users',
                     'url' => 'admin/users',
                     'icon' => 'fas fa-fw fa-users',
                 ],
+                [
+                    'text' => 'Manage Offices',
+                    'url' => 'admin/offices',
+                    'icon' => 'fas fa-fw fa-building',
+                ],
                  [
-                    'text' => 'Add Requesting Office',
+                    'text' => 'Manage Requesting Office',
                     'url' => 'reqOffice',
                     'icon' => 'fas fa-building',
                 ],
                 [
-                    'text' => 'Add Positions',
+                    'text' => 'Manage Positions',
                     'url' => 'position',
                     'icon' => 'fas fa-users-cog',
                 ],
                 [
-                   'text' => 'References',
+                   'text' => 'Manage References',
                    'url' => 'references',
                    'icon' => 'fas fa-book',
                 ],
                 [
-                 'text' => 'Statuses',
+                 'text' => 'Manage Status',
                  'url'  => 'status',
                  'icon' => 'fas fa-flag',
                 ],
-                [
-                    'text' => 'System Settings',
-                    'url' => 'admin/settings',
-                    'icon' => 'fas fa-cogs',
-                ],
+          
             ],
         ],
         // ['header' => 'labels'],
@@ -441,7 +430,7 @@ return [
 
     'plugins' => [
         'Datatables' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',

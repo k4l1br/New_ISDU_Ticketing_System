@@ -10,12 +10,12 @@ class ReferenceController extends Controller
     public function index()
     {
         $references = Reference::all();
-        return view('references.index', compact('references'));
+        return view('superadmin.references.index', compact('references'));
     }
 
     public function create()
     {
-        return view('references.create');
+        return view('superadmin.references.create');
     }
 
     public function store(Request $request)
@@ -31,7 +31,7 @@ class ReferenceController extends Controller
 
     public function edit(Reference $reference)
     {
-        return view('references.edit', compact('reference'));
+        return view('superadmin.references.edit', compact('reference'));
     }
 
     public function update(Request $request, Reference $reference)

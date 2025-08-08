@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Dashboard Assets</title>
+    <script src="assets/js/chart.min.js"></script>
+    <script src="assets/js/datatables/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="assets/css/datatables.bootstrap4.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        #testChart { width: 400px; height: 400px; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Assets Test</h1>
+    
+    <div class="test-section">
+        <h2>Chart.js Test</h2>
+        <canvas id="testChart"></canvas>
+        <div id="chartStatus"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>jQuery Test</h2>
+        <div id="jqueryStatus"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>DataTables Test</h2>
+        <div id="datatableStatus"></div>
+    </div>
+
+    <script>
+        // Test jQuery
+        if (typeof $ !== 'undefined') {
+            document.getElementById('jqueryStatus').innerHTML = '<span style="color: green;">✓ jQuery is loaded (version: ' + $.fn.jquery + ')</span>';
+        } else {
+            document.getElementById('jqueryStatus').innerHTML = '<span style="color: red;">✗ jQuery is NOT loaded</span>';
+        }
+
+        // Test Chart.js
+        if (typeof Chart !== 'undefined') {
+            document.getElementById('chartStatus').innerHTML = '<span style="color: green;">✓ Chart.js is loaded (version: ' + Chart.version + ')</span>';
+            
+            // Create a test chart
+            const ctx = document.getElementById('testChart').getContext('2d');
+            const testChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['In Progress', 'No Action', 'Completed'],
+                    datasets: [{
+                        data: [2, 0, 0],
+                        backgroundColor: ['#ffc107', '#6c757d', '#28a745']
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    maintainAspectRatio: false
+                }
+            });
+        } else {
+            document.getElementById('chartStatus').innerHTML = '<span style="color: red;">✗ Chart.js is NOT loaded</span>';
+        }
+
+        // Test DataTables
+        if (typeof $.fn.DataTable !== 'undefined') {
+            document.getElementById('datatableStatus').innerHTML = '<span style="color: green;">✓ DataTables is loaded</span>';
+        } else {
+            document.getElementById('datatableStatus').innerHTML = '<span style="color: red;">✗ DataTables is NOT loaded</span>';
+        }
+    </script>
+</body>
+</html>

@@ -12,13 +12,13 @@ class positionController extends Controller
     public function index()
     {
         $positions = \App\Models\positionModel::all();
-        return view('position.index', compact('positions'));
+        return view('superadmin.position.index', compact('positions'));
     }
 
     // Show create form
     public function create()
     {
-        return view('position.create');
+        return view('superadmin.position.create');
     }
 
     // Store new position
@@ -39,7 +39,7 @@ class positionController extends Controller
     public function edit($id)
     {
         $position = \App\Models\positionModel::findOrFail($id);
-        return view('position.edit', compact('position'));
+        return view('superadmin.position.edit', compact('position'));
     }
 
     // Update position (only name)

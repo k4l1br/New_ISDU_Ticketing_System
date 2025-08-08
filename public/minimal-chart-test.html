@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Chart Test</title>
+    <script src="../assets/js/chart.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .chart-container { width: 400px; height: 300px; }
+        .status { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <h1>Minimal Chart Test</h1>
+    
+    <div id="status" class="status">Loading...</div>
+    
+    <div class="chart-container">
+        <canvas id="testChart"></canvas>
+    </div>
+
+    <script>
+        console.log('Starting minimal chart test...');
+        
+        function testChart() {
+            const statusDiv = document.getElementById('status');
+            
+            // Check Chart.js
+            if (typeof Chart === 'undefined') {
+                statusDiv.innerHTML = '❌ Chart.js not loaded';
+                statusDiv.className = 'status error';
+                return;
+            }
+            
+            console.log('Chart.js version:', Chart.version);
+            statusDiv.innerHTML = '✅ Chart.js loaded (v' + Chart.version + ')';
+            statusDiv.className = 'status success';
+            
+            // Test data
+            const data = [2, 0, 0]; // 2 in progress, 0 no action, 0 completed
+            
+            try {
+                const ctx = document.getElementById('testChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['In Progress', 'No Action', 'Completed'],
+                        datasets: [{
+                            data: data,
+                            backgroundColor: ['#ffc107', '#6c757d', '#28a745'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'bottom' }
+                        },
+                        cutout: '60%'
+                    }
+                });
+                
+                statusDiv.innerHTML += '<br>✅ Chart created successfully!';
+                console.log('Chart created successfully:', chart);
+                
+            } catch (error) {
+                statusDiv.innerHTML += '<br>❌ Chart creation failed: ' + error.message;
+                statusDiv.className = 'status error';
+                console.error('Chart creation failed:', error);
+            }
+        }
+        
+        // Wait for DOM and run test
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', testChart);
+        } else {
+            testChart();
+        }
+    </script>
+</body>
+</html>

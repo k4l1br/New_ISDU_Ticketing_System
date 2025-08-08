@@ -83,7 +83,7 @@
                                                name="fullName" 
                                                id="fullName"
                                                class="form-control @error('fullName') is-invalid @enderror" 
-                                               value="{{ old('fullName', $ticket->fullName) }}" 
+                                               value="{{ old('fullName', $ticket->full_name) }}" 
                                                placeholder="Enter full name"
                                                required>
                                         @error('fullName')
@@ -158,7 +158,7 @@
                                                name="contactNumber" 
                                                id="contactNumber"
                                                class="form-control @error('contactNumber') is-invalid @enderror" 
-                                               value="{{ old('contactNumber', $ticket->contactNumber) }}" 
+                                               value="{{ old('contactNumber', $ticket->contact_number) }}" 
                                                placeholder="Enter contact number"
                                                required>
                                         @error('contactNumber')
@@ -181,7 +181,7 @@
                                                name="emailAddress" 
                                                id="emailAddress"
                                                class="form-control @error('emailAddress') is-invalid @enderror" 
-                                               value="{{ old('emailAddress', $ticket->emailAddress) }}" 
+                                               value="{{ old('emailAddress', $ticket->email_address) }}" 
                                                placeholder="Enter email address"
                                                required>
                                         @error('emailAddress')
@@ -201,10 +201,10 @@
                                         <select name="reqOffice" id="reqOffice" class="form-control select2 @error('reqOffice') is-invalid @enderror" required>
                                             <option value="">Select or type office</option>
                                             @foreach($reqOffices as $office)
-                                                <option value="{{ $office }}" {{ old('reqOffice', $ticket->reqOffice) == $office ? 'selected' : '' }}>{{ $office }}</option>
+                                                <option value="{{ $office }}" {{ old('reqOffice', $ticket->req_office) == $office ? 'selected' : '' }}>{{ $office }}</option>
                                             @endforeach
-                                            @if(!in_array(old('reqOffice', $ticket->reqOffice), $reqOffices ?? []))
-                                                <option value="{{ old('reqOffice', $ticket->reqOffice) }}" selected>{{ old('reqOffice', $ticket->reqOffice) }}</option>
+                                            @if(!in_array(old('reqOffice', $ticket->req_office), $reqOffices ?? []))
+                                                <option value="{{ old('reqOffice', $ticket->req_office) }}" selected>{{ old('reqOffice', $ticket->req_office) }}</option>
                                             @endif
                                         </select>
                                         @error('reqOffice')
@@ -321,30 +321,30 @@
                                                 <option value="">Select unit</option>
                                                 @if(isset($availableUnits) && count($availableUnits))
                                                     @foreach($availableUnits as $unit)
-                                                        <option value="{{ $unit }}" {{ old('unitResponsible', $ticket->unitResponsible) == $unit ? 'selected' : '' }}>
+                                                        <option value="{{ $unit }}" {{ old('unitResponsible', $ticket->unit_responsible) == $unit ? 'selected' : '' }}>
                                                             {{ $unit }}
                                                         </option>
                                                     @endforeach
                                                 @else
                                                     <!-- Fallback to static options if no admin users exist yet -->
-                                                    <option value="ISDU" {{ old('unitResponsible', $ticket->unitResponsible) == 'ISDU' ? 'selected' : '' }}>ISDU</option>
-                                                    <option value="NMU" {{ old('unitResponsible', $ticket->unitResponsible) == 'NMU' ? 'selected' : '' }}>NMU</option>
-                                                    <option value="REPAIR" {{ old('unitResponsible', $ticket->unitResponsible) == 'REPAIR' ? 'selected' : '' }}>REPAIR</option>
-                                                    <option value="MB" {{ old('unitResponsible', $ticket->unitResponsible) == 'MB' ? 'selected' : '' }}>MB</option>
+                                                    <option value="ISDU" {{ old('unitResponsible', $ticket->unit_responsible) == 'ISDU' ? 'selected' : '' }}>ISDU</option>
+                                                    <option value="NMU" {{ old('unitResponsible', $ticket->unit_responsible) == 'NMU' ? 'selected' : '' }}>NMU</option>
+                                                    <option value="REPAIR" {{ old('unitResponsible', $ticket->unit_responsible) == 'REPAIR' ? 'selected' : '' }}>REPAIR</option>
+                                                    <option value="MB" {{ old('unitResponsible', $ticket->unit_responsible) == 'MB' ? 'selected' : '' }}>MB</option>
                                                 @endif
                                                 <!-- Include current value if it doesn't match available units -->
-                                                @if(isset($availableUnits) && !in_array(old('unitResponsible', $ticket->unitResponsible), $availableUnits) && old('unitResponsible', $ticket->unitResponsible))
-                                                    <option value="{{ old('unitResponsible', $ticket->unitResponsible) }}" selected>{{ old('unitResponsible', $ticket->unitResponsible) }}</option>
+                                                @if(isset($availableUnits) && !in_array(old('unitResponsible', $ticket->unit_responsible), $availableUnits) && old('unitResponsible', $ticket->unit_responsible))
+                                                    <option value="{{ old('unitResponsible', $ticket->unit_responsible) }}" selected>{{ old('unitResponsible', $ticket->unit_responsible) }}</option>
                                                 @endif
                                             </select>
                                         @else
                                             <input type="text" 
                                                    name="unitResponsible_display" 
                                                    class="form-control" 
-                                                   value="{{ $ticket->unitResponsible }}" 
+                                                   value="{{ $ticket->unit_responsible }}" 
                                                    readonly
                                                    style="background-color: #f8f9fa;">
-                                            <input type="hidden" name="unitResponsible" value="{{ $ticket->unitResponsible }}">
+                                            <input type="hidden" name="unitResponsible" value="{{ $ticket->unit_responsible }}">
                                         @endif
                                         @error('unitResponsible')
                                             <span class="invalid-feedback">{{ $message }}</span>
@@ -368,14 +368,14 @@
                                         <h5><i class="fas fa-info-circle"></i> Ticket Information</h5>
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <strong>Requestor:</strong> {{ $ticket->fullName }}<br>
+                                                <strong>Requestor:</strong> {{ $ticket->full_name }}<br>
                                                 <strong>Position:</strong> {{ $ticket->position }}<br>
-                                                <strong>Office:</strong> {{ $ticket->reqOffice }}
+                                                <strong>Office:</strong> {{ $ticket->req_office }}
                                             </div>
                                             <div class="col-md-6">
-                                                <strong>Contact:</strong> {{ $ticket->contactNumber }}<br>
-                                                <strong>Email:</strong> {{ $ticket->emailAddress }}<br>
-                                                <strong>Unit:</strong> {{ $ticket->unitResponsible }}
+                                                <strong>Contact:</strong> {{ $ticket->contact_number }}<br>
+                                                <strong>Email:</strong> {{ $ticket->email_address }}<br>
+                                                <strong>Unit:</strong> {{ $ticket->unit_responsible }}
                                             </div>
                                         </div>
                                     </div>

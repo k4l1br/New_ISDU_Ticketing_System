@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Components Test</title>
+    <link rel="stylesheet" href="assets/css/datatables.bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.0/css/bootstrap.min.css">
+    <style>
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .status { padding: 10px; margin: 5px 0; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard Components Test</h1>
+        
+        <div class="test-section">
+            <h3>Library Loading Status</h3>
+            <div id="library-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Chart.js Test</h3>
+            <div style="width: 400px; height: 300px;">
+                <canvas id="testChart"></canvas>
+            </div>
+            <div id="chart-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>DataTables Test</h3>
+            <table id="testTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>In Progress</td><td>Active</td><td>5</td></tr>
+                    <tr><td>No Action</td><td>Pending</td><td>3</td></tr>
+                    <tr><td>Completed</td><td>Done</td><td>12</td></tr>
+                </tbody>
+            </table>
+            <div id="datatable-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>API Endpoints Test</h3>
+            <button id="test-dashboard-data" class="btn btn-primary">Test Dashboard Data</button>
+            <button id="test-per-unit" class="btn btn-secondary">Test Per Unit Data</button>
+            <button id="test-tasks-report" class="btn btn-success">Test Tasks Report</button>
+            <div id="api-status"></div>
+        </div>
+    </div>
+
+    <!-- Load all local assets -->
+    <script src="assets/js/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/datatables/jquery.dataTables.min.js"></script>
+    <script src="assets/js/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="assets/js/chart.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            const libraryStatus = $('#library-status');
+            const chartStatus = $('#chart-status');
+            const datatableStatus = $('#datatable-status');
+            const apiStatus = $('#api-status');
+            
+            // Test jQuery
+            if (typeof $ !== 'undefined') {
+                libraryStatus.append('<div class="status success">✅ jQuery loaded successfully</div>');
+            } else {
+                libraryStatus.append('<div class="status error">❌ jQuery failed to load</div>');
+            }
+
+            // Test Chart.js
+            if (typeof Chart !== 'undefined') {
+                libraryStatus.append('<div class="status success">✅ Chart.js loaded successfully (v' + Chart.version + ')</div>');
+                
+                // Create test chart
+                try {
+                    const ctx = document.getElementById('testChart').getContext('2d');
+                    const testChart = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['In Progress', 'No Action', 'Completed'],
+                            datasets: [{
+                                data: [5, 3, 12],
+                                backgroundColor: ['#ffc107', '#6c757d', '#28a745']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false
+                        }
+                    });
+                    chartStatus.append('<div class="status success">✅ Chart created successfully</div>');
+                } catch (error) {
+                    chartStatus.append('<div class="status error">❌ Chart creation failed: ' + error.message + '</div>');
+                }
+            } else {
+                libraryStatus.append('<div class="status error">❌ Chart.js failed to load</div>');
+            }
+
+            // Test DataTables
+            if ($.fn.DataTable) {
+                libraryStatus.append('<div class="status success">✅ DataTables loaded successfully</div>');
+                
+                try {
+                    $('#testTable').DataTable({
+                        paging: false,
+                        searching: false,
+                        info: false
+                    });
+                    datatableStatus.append('<div class="status success">✅ DataTable initialized successfully</div>');
+                } catch (error) {
+                    datatableStatus.append('<div class="status error">❌ DataTable initialization failed: ' + error.message + '</div>');
+                }
+            } else {
+                libraryStatus.append('<div class="status error">❌ DataTables failed to load</div>');
+            }
+
+            // Test API endpoints
+            $('#test-dashboard-data').click(function() {
+                apiStatus.append('<div class="status">Testing /dashboard-data...</div>');
+                fetch('/dashboard-data')
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                    })
+                    .then(data => {
+                        apiStatus.append('<div class="status success">✅ Dashboard data: ' + JSON.stringify(data) + '</div>');
+                    })
+                    .catch(error => {
+                        apiStatus.append('<div class="status error">❌ Dashboard data failed: ' + error.message + '</div>');
+                    });
+            });
+
+            $('#test-per-unit').click(function() {
+                apiStatus.append('<div class="status">Testing /dashboard-per-unit...</div>');
+                fetch('/dashboard-per-unit')
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                    })
+                    .then(data => {
+                        apiStatus.append('<div class="status success">✅ Per unit data: ' + data.data.length + ' records</div>');
+                    })
+                    .catch(error => {
+                        apiStatus.append('<div class="status error">❌ Per unit data failed: ' + error.message + '</div>');
+                    });
+            });
+
+            $('#test-tasks-report').click(function() {
+                apiStatus.append('<div class="status">Testing /dashboard-tasks-report...</div>');
+                fetch('/dashboard-tasks-report?range=weekly')
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                    })
+                    .then(data => {
+                        apiStatus.append('<div class="status success">✅ Tasks report: ' + data.labels.length + ' data points</div>');
+                    })
+                    .catch(error => {
+                        apiStatus.append('<div class="status error">❌ Tasks report failed: ' + error.message + '</div>');
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

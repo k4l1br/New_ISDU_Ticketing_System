@@ -15,6 +15,11 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// CSRF Token refresh route
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+})->middleware('web');
+
 // Home route to fix 'Route [home] not defined' error
 Route::get('/home', function () {
     return view('home');
@@ -37,11 +42,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tickets', [ticketController::class, 'index'])->name('ticket.index');
         Route::get('/my-tickets', [ticketController::class, 'myTickets'])->name('tickets.my');
         
-        // Ticket viewing and editing (admins can only edit status)
+        // Ticket viewing (read-only for admin)
         Route::get('/ticket/{ticket}', [ticketController::class, 'show'])->name('ticket.show');
-        Route::get('/ticket/{ticket}/edit', [ticketController::class, 'edit'])->name('ticket.edit');
-        Route::put('/ticket/{ticket}', [ticketController::class, 'update'])->name('ticket.update');
-        Route::patch('/ticket/{ticket}', [ticketController::class, 'update']);
         
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -53,9 +55,12 @@ Route::middleware(['auth'])->group(function () {
 
     // Routes only accessible by super_admin
     Route::middleware(['role:super_admin'])->group(function () {
-        // Ticket creation and deletion (super admin only)
+        // Ticket creation, editing, updating and deletion (super admin only)
         Route::get('/tickets/create', [ticketController::class, 'create'])->name('ticket.create');
         Route::post('/ticket', [ticketController::class, 'store'])->name('ticket.store');
+        Route::get('/ticket/{ticket}/edit', [ticketController::class, 'edit'])->name('ticket.edit');
+        Route::put('/ticket/{ticket}', [ticketController::class, 'update'])->name('ticket.update');
+        Route::patch('/ticket/{ticket}', [ticketController::class, 'update']);
         Route::delete('/ticket/{ticket}', [ticketController::class, 'destroy'])->name('ticket.destroy');
         
         // Requesting Office
@@ -69,6 +74,7 @@ Route::middleware(['auth'])->group(function () {
         // Admin User Management
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+            Route::resource('offices', \App\Http\Controllers\Admin\OfficeController::class)->except(['show']);
         });
 
         //Reference

@@ -42,7 +42,7 @@
                     
                     <dl class="row">
                         <dt class="col-sm-4">Full Name:</dt>
-                        <dd class="col-sm-8">{{ $ticket->fullName }}</dd>
+                        <dd class="col-sm-8">{{ $ticket->full_name }}</dd>
                         
                         <dt class="col-sm-4">Position:</dt>
                         <dd class="col-sm-8">{{ $ticket->position }}</dd>
@@ -54,15 +54,15 @@
                         
                         <dt class="col-sm-4">Contact Number:</dt>
                         <dd class="col-sm-8">
-                            <a href="tel:{{ $ticket->contactNumber }}" class="text-decoration-none">
-                                <i class="fas fa-phone mr-1"></i>{{ $ticket->contactNumber }}
+                            <a href="tel:{{ $ticket->contact_number }}" class="text-decoration-none">
+                                <i class="fas fa-phone mr-1"></i>{{ $ticket->contact_number }}
                             </a>
                         </dd>
                         
                         <dt class="col-sm-4">Email Address:</dt>
                         <dd class="col-sm-8">
-                            <a href="mailto:{{ $ticket->emailAddress }}" class="text-decoration-none">
-                                <i class="fas fa-envelope mr-1"></i>{{ $ticket->emailAddress }}
+                            <a href="mailto:{{ $ticket->email_address }}" class="text-decoration-none">
+                                <i class="fas fa-envelope mr-1"></i>{{ $ticket->email_address }}
                             </a>
                         </dd>
                     </dl>
@@ -76,7 +76,7 @@
                     
                     <dl class="row">
                         <dt class="col-sm-4">Requesting Office:</dt>
-                        <dd class="col-sm-8">{{ $ticket->reqOffice }}</dd>
+                        <dd class="col-sm-8">{{ $ticket->req_office }}</dd>
                         
                         <dt class="col-sm-4">Reference:</dt>
                         <dd class="col-sm-8">
@@ -107,7 +107,7 @@
                         
                         <dt class="col-sm-4">Unit Responsible:</dt>
                         <dd class="col-sm-8">
-                            <span class="badge badge-dark">{{ $ticket->unitResponsible }}</span>
+                            <span class="badge badge-dark">{{ $ticket->unit_responsible }}</span>
                         </dd>
                     </dl>
                 </div>
@@ -141,9 +141,11 @@
         <div class="card-footer">
             <div class="row">
                 <div class="col-12">
-                    <a href="{{ route('ticket.edit', $ticket) }}" class="btn btn-warning">
-                        <i class="fas fa-edit"></i> Edit Ticket
-                    </a>
+                    @if(auth()->user()->isSuperAdmin())
+                        <a href="{{ route('ticket.edit', $ticket) }}" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Ticket
+                        </a>
+                    @endif
                     
                     <a href="{{ auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin() ? route('tickets.my') : route('ticket.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Back to Tickets

@@ -56,7 +56,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="fullName">
-                                        Full Name *
+                                        Requesting Personnel *
                                     </label>
                                     <div class="input-group">
                                         <div class="input-group-prepend">
@@ -273,18 +273,8 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text"><i class="fas fa-flag"></i></span>
                                         </div>
-                                       <select name="status" 
-                                         id="status"
-                                         class="form-control select2 @error('status') is-invalid @enderror" 
-                                         required>
-                                         <option value="">Select status</option>
-                                         @foreach($statuses as $status)
-                                         <option value="{{ $status }}" {{ old('status') == $status ? 'selected' : '' }}>{{ $status }}</option>
-                                         @endforeach
-                                        </select>
-                                        @error('status')
-                                            <span class="invalid-feedback">{{ $message }}</span>
-                                        @enderror
+                                        <input type="text" class="form-control" value="In Progress" disabled>
+                                        <input type="hidden" name="status" value="In Progress">
                                     </div>
                                 </div>
                             </div>

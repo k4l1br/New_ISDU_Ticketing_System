@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Debug Test</title>
+    <script src="http://localhost/New_ISDU_Ticketing_System/public/assets/js/chart.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { width: 400px; height: 400px; margin: 20px 0; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Debug Test</h1>
+    
+    <div id="status"></div>
+    
+    <div class="test-container">
+        <canvas id="testChart"></canvas>
+    </div>
+
+    <script>
+        console.log('Starting debug test...');
+        
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            document.getElementById('status').innerHTML = '<p class="error">❌ Chart.js is NOT loaded</p>';
+            console.error('Chart.js not loaded');
+        } else {
+            document.getElementById('status').innerHTML = '<p class="success">✅ Chart.js is loaded (version: ' + Chart.version + ')</p>';
+            console.log('Chart.js loaded successfully, version:', Chart.version);
+            
+            // Test data similar to dashboard
+            const testData = {
+                in_progress: 2,
+                no_action: 0,
+                completed: 0
+            };
+            
+            console.log('Creating test chart with data:', testData);
+            
+            try {
+                const ctx = document.getElementById('testChart').getContext('2d');
+                const testChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['In Progress', 'No Action', 'Completed'],
+                        datasets: [{
+                            data: [testData.in_progress, testData.no_action, testData.completed],
+                            backgroundColor: [
+                                '#ffc107', // AdminLTE warning
+                                '#6c757d', // AdminLTE secondary
+                                '#28a745'  // AdminLTE success
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { 
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { 
+                                display: true,
+                                position: 'bottom'
+                            }
+                        },
+                        cutout: '50%'
+                    }
+                });
+                
+                document.getElementById('status').innerHTML += '<p class="success">✅ Test chart created successfully</p>';
+                console.log('Test chart created successfully');
+                
+            } catch (error) {
+                document.getElementById('status').innerHTML += '<p class="error">❌ Chart creation failed: ' + error.message + '</p>';
+                console.error('Chart creation failed:', error);
+            }
+        }
+        
+        // Test AJAX endpoint
+        fetch('/New_ISDU_Ticketing_System/public/dashboard-data')
+            .then(response => {
+                console.log('Dashboard data response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Dashboard data received:', data);
+                document.getElementById('status').innerHTML += '<p class="success">✅ Dashboard API working: ' + JSON.stringify(data) + '</p>';
+            })
+            .catch(error => {
+                console.error('Dashboard data fetch failed:', error);
+                document.getElementById('status').innerHTML += '<p class="error">❌ Dashboard API failed: ' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>
