@@ -8,7 +8,7 @@
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', sans-serif;
-            background-color: #ffffff;
+            background-color: #334155;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -16,18 +16,18 @@
         }
 
         .login-container {
-            background: linear-gradient(to bottom right, #1b2a38, #0f172a);
+            background: white;
             padding: 40px 30px;
             border-radius: 12px;
             box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
             width: 100%;
             max-width: 400px;
-            color: white;
+            color: #1b2a38;
         }
 
         .login-container h2 {
             text-align: center;
-            color: #ffffff;
+            color: #1b2a38;
             font-size: 24px;
             margin-bottom: 5px;
         }
@@ -36,7 +36,7 @@
             text-align: center;
             font-weight: normal;
             margin-bottom: 20px;
-            color: #ffffff;
+            color: #1b2a38;
             font-size: 16px;
         }
 
@@ -44,7 +44,7 @@
             font-weight: 600;
             display: block;
             margin-bottom: 6px;
-            color: #ddd;
+            color: #1b2a38;
         }
 
         .input-group {
@@ -56,12 +56,19 @@
             width: 100%;
             padding: 12px 40px 12px 10px;
             margin-bottom: 15px;
-            border: 1px solid #334155;
+            border: 1px solid #ddd;
             border-radius: 6px;
-            background-color: #0f172a;
-            color: white;
+            background-color: rgba(51, 65, 85, 0.1); /* Light #334155 fill */
+            color: #1b2a38;
             font-size: 15px;
             box-sizing: border-box;
+            transition: background-color 0.3s;
+        }
+
+        input:focus {
+            background-color: rgba(51, 65, 85, 0.15); /* Slightly darker on focus */
+            outline: none;
+            border-color: #2563eb;
         }
 
         input::placeholder {
@@ -109,7 +116,7 @@
         }
 
         .register-link a {
-            color: #60a5fa;
+            color: #2563eb;
             text-decoration: none;
             font-size: 14px;
         }
@@ -118,8 +125,10 @@
             text-decoration: underline;
         }
     </style>
+    
 </head>
 <body>
+
     <div class="login-container">
         <h2><strong>CEISSAFP</strong></h2>
         <h3>Ticketing System</h3>

@@ -1,0 +1,20 @@
+[33mfd583ef[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmvallega[m[33m, [m[1;31morigin/mvallega[m[33m)[m Merge branch 'master' into mvallega
+[33mb5a3ba9[m user login
+[33m38526f9[m[33m ([m[1;32mmaster[m[33m)[m login
+[33m64b739d[m Login
+[33m1193f0c[m assigning of ticket to admin
+[33m339d864[m[33m ([m[1;32mmel-feature-login[m[33m)[m adding erd for localhost
+[33m436721b[m Merge pull request #2 from k4l1br/alelie-branch
+[33m0eece63[m[33m ([m[1;31morigin/alelie-branch[m[33m)[m Dashboard,Status,References
+[33m599aa65[m updated the dashboard
+[33mf3467c8[m fixed alelie push
+[33m4478e66[m Resolve merge conflicts and update ticket views and routes
+[33m53b674f[m user
+[33m57132d2[m user
+[33m1c71642[m Dashboard
+[33m793f583[m[33m ([m[1;32mcheckout[m[33m)[m My local work
+[33mc98971c[m My work before merging
+[33me5ef988[m positions crud and edit of requesting office
+[33m4ec65f1[m reqOffice crud with options in dropdown
+[33me7e0cd0[m ticket crud and index
+[33me1ab07d[m Initial commit
